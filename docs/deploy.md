@@ -2,8 +2,10 @@
 
 ## Situação real
 
-O site estático e os workflows estão preparados. **Ainda não existe deploy público verificado.**
-O remoto é `https://github.com/luisgabrielMR/Tres.git`. Após autorização explícita de Luis, a API confirmou repositório privado, conta GitHub Free e acesso administrativo. A autenticação existente foi usada somente em memória, sem exibir ou salvar o token. Tornar o código público depende de confirmação específica; o plano Free não permite Pages neste repositório enquanto privado. Nenhuma contratação foi feita.
+**Publicado:** https://luisgabrielmr.github.io/Tres/
+
+Deploy do commit `90c1a71` concluído em 04/10/2026: [execução 37223280120](https://github.com/luisgabrielMR/Tres/actions/runs/37223280120). CI [37223264178](https://github.com/luisgabrielMR/Tres/actions/runs/37223264178) passou. Convite, cartas, cinco movimentos nos dois sentidos e saída foram verificados pela URL HTTPS em duas abas na mesma máquina; rota direta, sem erros no console do convidado. Evidência: `previews/publicado-online.png`.
+O remoto é `https://github.com/luisgabrielMR/Tres.git`. Após autorização explícita de Luis, a API confirmou repositório privado, conta GitHub Free e acesso administrativo. A autenticação existente foi usada somente em memória, sem exibir ou salvar o token. Luis confirmou explicitamente tornar o repositório público; a mudança foi aplicada antes do push. Pages está com HTTPS obrigatório e build por workflow. Nenhuma contratação ou alteração de plano foi feita.
 
 ## Opção preparada: GitHub Pages
 
@@ -42,11 +44,11 @@ O cliente aceita `VITE_ICE_SERVERS_URL`: endpoint HTTPS que devolve um `RTCIceSe
 
 A chave administrativa da API do provedor deve ficar em um emissor serverless seguro e nunca em `VITE_*`, Git, URL do convite ou código do navegador. A emissão deve limitar duração e uso segundo o plano gratuito contratado. Nenhum emissor foi publicado: depende da conta autorizada e do mecanismo de credenciais escolhido. Configurar somente a URL pública do emissor na variável de repositório `VITE_ICE_SERVERS_URL`; o workflow a passa ao Vite. A variável vazia mantém o modo direto/STUN.
 
-Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perda do relay. A validação final de TURN exige uma conexão com política `relay` em bancada ou redes em que o candidato selecionado seja `relay`, mais conferência da cota real do provedor. Os testes atuais confirmaram apenas rota direta na mesma máquina. Não garantem conectividade entre NATs restritos, redes corporativas ou operadoras móveis.
+Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perda do relay. A validação final de TURN exige uma conexão com política `relay` em bancada ou redes em que o candidato selecionado seja `relay`, mais conferência da cota real do provedor. Os testes atuais confirmaram rota direta na mesma máquina, tanto em localhost quanto na URL pública. Não garantem conectividade entre NATs restritos, redes corporativas ou operadoras móveis.
 
 ## Aceite ainda pendente
 
-- Acesso autorizado e publicação HTTPS verificável.
+- Concluído: acesso autorizado, commit/push, visibilidade pública e publicação HTTPS verificada.
 - Revisão das condições reais da conta/free tier de TURN e emissão segura de credenciais, se adotado.
 - Teste usando URL pública e dois dispositivos/redes; teste de relay separado.
-- Nenhum teste local substitui esses três itens.
+- A publicação foi verificada; testes em uma única máquina não substituem o aceite entre redes nem o teste de TURN.

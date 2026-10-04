@@ -2,9 +2,11 @@
 
 Xadrez nos movimentos. Cartas a cada turno. Uma aplicação React + TypeScript + Vite, sem contas ou persistência de partidas.
 
+**Jogar:** https://luisgabrielmr.github.io/Tres/
+
 ## Estado da entrega
 
-Comitê 1 aprovado. Comitê 2 implementado a partir do mockup HTML fornecido por Luis, incluindo a alteração **cada peça pode mover no máximo uma vez por carta**. Modo local funcional, com todas as cartas e movimentos especiais. Comitê 3 em andamento: multiplayer WebRTC implementado e testado em duas sessões no navegador, com sinalização pública PeerJS. Publicação pública e validação por TURN ainda pendentes; não considerar a fase encerrada.
+Comitê 1 aprovado. Comitê 2 implementado a partir do mockup HTML fornecido por Luis, incluindo a alteração **cada peça pode mover no máximo uma vez por carta**. Modo local funcional, com todas as cartas e movimentos especiais. Comitê 3 em andamento: multiplayer WebRTC implementado e testado em duas sessões no navegador, com sinalização pública PeerJS. Site publicado no GitHub Pages em 04/10/2026, com convite e movimentos nos dois sentidos verificados na URL pública. Testes em redes/dispositivos distintos e validação por TURN continuam pendentes.
 
 ## Executar
 
@@ -62,4 +64,4 @@ O transporte padrão usa PeerJS Cloud e STUN, sem TURN configurado. Isso funcion
 
 A recuperação é limitada à mesma conexão WebRTC durante 20 segundos, com conferência de estado. Refresh perde a identidade e a partida; um código não recupera uma sessão. Não há garantia de disponibilidade do serviço gratuito. Logs operacionais dos provedores são independentes do aplicativo.
 
-Os workflows de CI e publicação manual no GitHub Pages estão preparados, mas ainda não foram executados no GitHub. A URL pública não foi publicada.
+CI e deploy executados com sucesso no GitHub. Repositório tornado público com autorização explícita de Luis, usando GitHub Free e runners padrão. Nenhum plano pago ou serviço TURN foi ativado.

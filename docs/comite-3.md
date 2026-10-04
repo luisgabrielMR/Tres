@@ -1,6 +1,6 @@
 # Comitê 3 — implementação e auditoria
 
-Iniciado por autorização de Luis em 04/10/2026. **Em andamento: deploy e validação externa pendentes.** As regras atuais incluem a alternativa de dois movimentos no +2 e quatro no +4, sem repetir peças.
+Iniciado por autorização de Luis em 04/10/2026. **Site publicado; validação entre redes/dispositivos distintos e TURN pendentes.** As regras atuais incluem a alternativa de dois movimentos no +2 e quatro no +4, sem repetir peças.
 
 ## Revisão crítica do handoff
 
@@ -22,7 +22,7 @@ Iniciado por autorização de Luis em 04/10/2026. **Em andamento: deploy e valid
 - Mensagem inválida ou divergência interrompe a sessão, sem substituir estado local e sem conceder vitória por desconexão.
 - Desconexão transitória da mesma PeerConnection pausa entradas por até 20 segundos. Ao recuperar, SYNC_CHECK/SYNC_OK exige igualdade de revisão e hash. Diferença não inequívoca encerra. Fechamento definitivo do canal encerra sem retomada; atualizar perde identidade.
 - Limites: 16 KiB por mensagem, 32 mensagens enfileiradas, buffer de envio de 64 KiB, ACK de 20 segundos, convite vazio de dez minutos e negociação de trinta segundos.
-- CI e publicação manual de site estático preparados; `.env.example` documenta configuração sem segredo administrativo.
+- CI e publicação manual de site estático executados com sucesso; `.env.example` documenta configuração sem segredo administrativo.
 
 ## Evidência de validação
 
@@ -31,7 +31,8 @@ Iniciado por autorização de Luis em 04/10/2026. **Em andamento: deploy e valid
 - Temporizadores testados com relógio virtual para 30 segundos/10 minutos, slot único antes da abertura do canal e limpeza ao cancelar. Transportes simulados testam o controlador, não comprovam WebRTC real.
 - Navegador real, build de produção em localhost: duas sessões conectaram ao PeerJS Cloud, rota indicada como **direta**; compra de cartas e movimentos nos dois sentidos foram sincronizados; terceiro jogador recebeu sala cheia; sair interrompeu o outro cliente e bloqueou novas ações. Captura visual: `previews/online-desktop.png`.
 - Modo local continua disponível depois de sair do online. Revisão responsiva do online a 390 px (375 px úteis com barra de rolagem) confirmou ausência de transbordamento após corrigir o mínimo intrínseco da coluna do grid e a quebra da faixa de jogadores. Evidência em `previews/online-celular.png`. Essa revisão não equivale a testar todos os celulares/navegadores físicos.
-- Build TypeScript/Vite e auditoria npm registrados na entrega. Nenhum teste comprovou ainda uma URL pública nem relay TURN.
+- Build TypeScript/Vite e auditoria npm registrados na entrega. URL pública `https://luisgabrielmr.github.io/Tres/` verificada em duas abas na mesma máquina: compra, três movimentos do criador, dois do convidado, troca de turno e saída sincronizadas. Rota direta; sem erro de console no convidado. Testes não comprovam relay TURN nem redes distintas.
+- CI remoto 37223264178 e deploy 37223280120 concluídos com sucesso em 04/10/2026. Repositório público e GitHub Free, sem contratação.
 
 ## Decisões que refinam a proposta original
 
@@ -43,4 +44,4 @@ A configuração de regras online precisa ser exatamente a mesma do build local.
 
 ## Pendências para encerrar
 
-Seguir `deploy.md`: verificação em redes/dispositivos distintos e definição/validação de TURN. Luis autorizou commit/push e uso da autenticação existente, condicionado a custo zero. A API confirmou repositório privado e conta Free; foi solicitada confirmação específica para tornar o código público antes de habilitar Pages.
+Seguir `deploy.md`: verificação em redes/dispositivos distintos e definição/validação de TURN. Luis autorizou commit/push, uso da autenticação existente e, separadamente, visibilidade pública para usar Pages no plano Free. A publicação foi concluída sem serviços pagos.
