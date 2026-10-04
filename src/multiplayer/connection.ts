@@ -1,4 +1,5 @@
 import Peer, { SerializationType } from 'peerjs';
+import { rtcConfig } from './ice';
 import type { DataConnection } from 'peerjs';
 import { GameSession } from './session';
 import type { SessionView } from './session';
@@ -17,27 +18,6 @@ export interface OnlineView {
   stage: 'connecting' | 'waiting' | 'negotiating' | 'playing' | 'failed';
   code: string; player: PlayerId; message: string; game: SessionView | null;
   route: 'checking' | 'direct' | 'relay';
-}
-
-// Only short-lived ICE credentials may be returned by this endpoint. Never a provider API key.
-async function rtcConfig(): Promise<RTCConfiguration> {
-  const url = import.meta.env.VITE_ICE_SERVERS_URL;
-  const config: RTCConfiguration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-  if (url) {
-    const parsed = new URL(url, location.href);
-    if (parsed.protocol !== 'https:' && parsed.hostname !== '127.0.0.1' && parsed.hostname !== 'localhost') throw new Error('ICE_CONFIG');
-    const response = await fetch(parsed, { cache: 'no-store', credentials: 'omit', signal: AbortSignal.timeout(8000) });
-    if (!response.ok) throw new Error('ICE_CONFIG');
-    const raw = await response.text();
-    if (raw.length > 16_384) throw new Error('ICE_CONFIG');
-    const servers: unknown = JSON.parse(raw);
-    if (!Array.isArray(servers) || servers.length > 8 || servers.length < 1 || servers.some(s =>
-      !s || typeof s !== 'object' || !Array.isArray(s.urls) && typeof s.urls !== 'string' ||
-      ![s.urls].flat().every((u: unknown) => typeof u === 'string' && /^(stun|turn|turns):/.test(u)) ||
-      s.username !== undefined && typeof s.username !== 'string' || s.credential !== undefined && typeof s.credential !== 'string')) throw new Error('ICE_CONFIG');
-    config.iceServers = servers;
-  }
-  return config;
 }
 
 export class OnlineConnection {
@@ -65,7 +45,7 @@ export class OnlineConnection {
       const config = await rtcConfig();
       if (this.stopped) return;
       this.peer = new Peer(this.mode === 'create' ? `tres3-${this.view.code}` : `tres3-guest-${id()}`, { debug: 0, config, secure: true });
-      this.connectionTimer = this.later(() => this.fail('A conexão demorou demais. Tente novamente; esta rede pode precisar de TURN.'), 30_000);
+      this.connectionTimer = this.later(() => this.fail('O serviço de salas não respondeu a tempo. Confira a internet e tente novamente.'), 30_000);
       this.peer.on('open', () => {
         if (this.stopped || this.view.stage === 'failed') return;
         if (this.mode === 'create') {
@@ -88,7 +68,7 @@ export class OnlineConnection {
         this.fail(error.type === 'peer-unavailable' ? 'Sala não encontrada ou expirada. Confira o código com seu amigo.' : error.type === 'unavailable-id' ? 'Este código já está em uso. Crie uma nova partida para gerar outro.' : 'Não foi possível conectar. Tente outra rede ou confira o serviço de conexão.');
       });
       this.peer.on('disconnected', () => { if (!this.connection?.open) this.fail('A sinalização foi interrompida. Crie ou entre novamente.'); });
-    } catch { this.fail('Não foi possível preparar a conexão. Confira a rede e a configuração de TURN.'); }
+    } catch { this.fail('Não foi possível preparar o serviço de conexão. Tente novamente em instantes.'); }
   }
   private reject(connection: DataConnection) {
     if (this.rejects.size >= 3 || connection.serialization !== SerializationType.None) { connection.close(); return; }
@@ -102,7 +82,7 @@ export class OnlineConnection {
     this.connection = connection;
     this.clear(this.roomTimer); this.clear(this.connectionTimer);
     this.view.stage = 'negotiating'; this.view.message = 'Encontramos a mesa. Estabelecendo conexão entre os navegadores…'; this.publish();
-    this.connectionTimer = this.later(() => this.fail('Não foi possível estabelecer P2P. Tentem outra rede; algumas redes exigem um servidor TURN.'), 30_000);
+    this.connectionTimer = this.later(() => this.fail(connection.open ? 'Os navegadores se conectaram, mas não concluíram a preparação da partida. Atualizem as duas páginas e criem uma nova sala.' : 'A sala foi encontrada, mas os navegadores não conseguiram se conectar. Mantenham as duas páginas abertas, atualizem e criem uma nova sala. Se continuar, informem quais navegadores e se usam janela anônima.'), 30_000);
     this.session = new GameSession(this.view.player, raw => {
       if (!connection.open || connection.dataChannel.bufferedAmount > 65_536) throw new Error('CONNECTION_LOST');
       void connection.send(raw);

@@ -69,3 +69,14 @@ it('cancelar remove todos os timers e não publica atualizações tardias', asyn
   c.peer().emit('open'); await vi.advanceTimersByTimeAsync(600_000);
   expect(c.view()).toBe(snapshot); expect(c.peer().destroyed).toBe(true); expect(vi.getTimerCount()).toBe(0);
 });
+it('distingue falha ao conectar navegadores da demora em sincronizar uma partida já conectada', async () => {
+  const disconnected = connection('join'); await disconnected.result.start(); disconnected.peer().emit('open');
+  disconnected.peer().outgoing.open = false;
+  await vi.advanceTimersByTimeAsync(30_000);
+  expect(disconnected.view().message).toContain('A sala foi encontrada');
+  expect(disconnected.view().message).not.toContain('TURN');
+  const connected = connection('join'); await connected.result.start(); connected.peer().emit('open');
+  connected.peer().outgoing.emit('open');
+  await vi.advanceTimersByTimeAsync(30_000);
+  expect(connected.view().message).toContain('Os navegadores se conectaram');
+});

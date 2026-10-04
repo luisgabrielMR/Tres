@@ -27,7 +27,7 @@ export function OnlineLobby({ mode, view, initialCode, onStart, onBack }: {
         <button className="button primary full" disabled={busy || !validCode(normalizeCode(code))}>Entrar em partida</button>
       </form>}
     {view && <div role="status"><TurnNotice title={view.stage === 'failed' ? 'Não foi possível continuar' : view.stage === 'waiting' ? 'A mesa está pronta' : 'Preparando sua partida'} tone={view.stage === 'failed' ? 'warning' : 'info'}><p>{view.message}</p></TurnNotice></div>}
-    <p className="session-note">Sem conta e sem histórico. Ao sair ou atualizar, a sessão é perdida. Algumas redes precisam de TURN para conectar.</p>
+    <p className="session-note">Sem conta e sem histórico. Ao sair ou atualizar, a sessão é perdida. Mantenham as duas páginas abertas durante a conexão e a partida.</p>
     <button className="button quiet full" onClick={onBack}>{busy ? 'Cancelar e voltar' : 'Voltar ao início'}</button>
   </div></main>;
 }

@@ -42,7 +42,7 @@ O cliente aceita `VITE_ICE_SERVERS_URL`: endpoint HTTPS que devolve um `RTCIceSe
 [{"urls":["turns:turn.example.org:443?transport=tcp"],"username":"temporario","credential":"credencial-temporaria"}]
 ```
 
-A chave administrativa da API do provedor deve ficar em um emissor serverless seguro e nunca em `VITE_*`, Git, URL do convite ou código do navegador. A emissão deve limitar duração e uso segundo o plano gratuito contratado. Nenhum emissor foi publicado: depende da conta autorizada e do mecanismo de credenciais escolhido. Configurar somente a URL pública do emissor na variável de repositório `VITE_ICE_SERVERS_URL`; o workflow a passa ao Vite. A variável vazia mantém o modo direto/STUN.
+A chave administrativa da API do provedor, caso utilizada, deve ficar em um emissor serverless seguro e nunca em `VITE_*`, Git, URL do convite ou código do navegador. A emissão deve limitar duração e uso segundo o plano gratuito contratado. Nenhum emissor foi publicado: depende da conta autorizada e do mecanismo de credenciais escolhido. Configurar somente a URL pública do emissor na variável de repositório `VITE_ICE_SERVERS_URL`; o workflow a passa ao Vite. A variável vazia mantém o modo direto/STUN.
 
 Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perda do relay. A validação final de TURN exige uma conexão com política `relay` em bancada ou redes em que o candidato selecionado seja `relay`, mais conferência da cota real do provedor. Os testes atuais confirmaram rota direta na mesma máquina, tanto em localhost quanto na URL pública. Não garantem conectividade entre NATs restritos, redes corporativas ou operadoras móveis.
 
@@ -52,3 +52,22 @@ Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perd
 - Revisão das condições reais da conta/free tier de TURN e emissão segura de credenciais, se adotado.
 - Teste usando URL pública e dois dispositivos/redes; teste de relay separado.
 - A publicação foi verificada; testes em uma única máquina não substituem o aceite entre redes nem o teste de TURN.
+
+## Investigação de conexão — 04/10/2026
+
+Luis relatou falha no mesmo PC/Wi-Fi entre uma janela normal e outra anônima. O erro anterior associava qualquer timeout de negociação a TURN, sem evidência. Agora diferencia indisponibilidade do serviço de salas, falha na conexão dos navegadores e timeout de preparação depois de abrir o canal. Não foi confirmada a causa no navegador de Luis.
+
+Repetição na URL pública: duas abas do navegador integrado conectaram diretamente. Isso não reproduz nem valida o perfil anônimo do navegador do usuário. Bancada local com dois RTCPeerConnections trocou ping/pong pela rota host/host. Teste isolado com política relay no endpoint público `staticauth.openrelay.metered.ca` (portas UDP 80/TCP 443 e autenticação pública documentada) não gerou candidatos relay, recebeu erro ICE 701 e expirou em 35 segundos. Isso prova a falha nessa bancada, não a indisponibilidade global do provedor. O endpoint não foi incorporado ao jogo.
+
+### Ativar Open Relay sem backend adicional
+
+A [documentação atual do Metered](https://www.metered.ca/docs/turn-server-service/quickstart/) distingue a chave pública limitada a **uma credencial TURN** da **Secret key administrativa** da conta. A primeira pode ser usada no frontend para buscar ICE; a segunda jamais deve ser publicada. Isso permite usar o endpoint do provedor diretamente, sem criar um emissor próprio, quando a credencial/plano escolhido permitir.
+
+1. O proprietário cria a conta no plano gratuito Open Relay. Reconfirmar no painel a cota de 20 GB/mês e ausência de cobrança/cartão; não contratar upgrades.
+2. Em TURN Server & SFU → Credentials, criar credencial para Três. Aguardar até dois minutos pela propagação.
+3. Get credential → Show API Key: chave limitada àquela credencial. Obter o domínio em Developers, sem copiar a Secret key dessa página.
+4. Configurar a URL de Get TURN Credential em `.env.local` e na variável GitHub `VITE_ICE_SERVERS_URL`. O valor é incorporado ao JavaScript público; somente chave explicitamente publicável pode estar nessa URL.
+5. Reiniciar Vite, abrir `http://127.0.0.1:5173/tests/connectivity.html` e clicar **Testar TURN configurado**. A bancada usa a mesma configuração do jogo, força `iceTransportPolicy: relay`, exige ping/pong e mostra os tipos de candidatos do par selecionado, sem IPs/credenciais. Essa página não entra no build público.
+6. Só considerar TURN ativado após confirmar rota relay e troca de mensagens, publicar e testar em dispositivos/redes diferentes. O plano gratuito tem limites; nenhum serviço garante qualquer navegador/rede.
+
+A conta ainda não foi criada/configurada nesta revisão. O proprietário informou que pode criar a conta gratuita. TURN segue pendente.
