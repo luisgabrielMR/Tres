@@ -1,6 +1,6 @@
 # Comitê 3 — implementação e auditoria
 
-Iniciado por autorização de Luis em 04/10/2026. **Site publicado; validação entre redes/dispositivos distintos e TURN pendentes.** As regras atuais incluem a alternativa de dois movimentos no +2 e quatro no +4, sem repetir peças.
+Iniciado por autorização de Luis em 04/10/2026. **Site publicado; TURN validado em bancada. Validação entre redes/dispositivos distintos pendente.** As regras atuais incluem a alternativa de dois movimentos no +2 e quatro no +4, sem repetir peças.
 
 ## Revisão crítica do handoff
 
@@ -26,7 +26,7 @@ Iniciado por autorização de Luis em 04/10/2026. **Site publicado; validação 
 
 ## Evidência de validação
 
-- 90 testes em Node aprovados: regras, protocolo, ciclo de vida e paridade de duas sessões independentes com motor local em três seeds e até 240 ações cada. A quantidade de ações depende de captura do rei.
+- 102 testes em Node aprovados: regras, protocolo, ciclo de vida e paridade de duas sessões independentes com motor local em três seeds e até 240 ações cada. A quantidade de ações depende de captura do rei.
 - Testes de mensagens adulteradas, ação de ator errado, revisão/hash inválidos, ação impossível, configuração incompatível, duplicação, envio antes de ACK, pausa, recuperação, saída e estado preservado na rejeição.
 - Temporizadores testados com relógio virtual para 30 segundos/10 minutos, slot único antes da abertura do canal e limpeza ao cancelar. Transportes simulados testam o controlador, não comprovam WebRTC real.
 - Navegador real, build de produção em localhost: duas sessões conectaram ao PeerJS Cloud, rota indicada como **direta**; compra de cartas e movimentos nos dois sentidos foram sincronizados; terceiro jogador recebeu sala cheia; sair interrompeu o outro cliente e bloqueou novas ações. Captura visual: `previews/online-desktop.png`.
@@ -44,4 +44,8 @@ A configuração de regras online precisa ser exatamente a mesma do build local.
 
 ## Pendências para encerrar
 
-Seguir `deploy.md`: verificação em redes/dispositivos distintos e definição/validação de TURN. Luis autorizou commit/push, uso da autenticação existente e, separadamente, visibilidade pública para usar Pages no plano Free. A publicação foi concluída sem serviços pagos.
+Seguir `deploy.md`: verificação em redes/dispositivos distintos e confirmação da cota real no painel do provedor. Luis autorizou commit/push, uso da autenticação existente e, separadamente, visibilidade pública para usar Pages no plano Free. A publicação foi concluída sem serviços pagos.
+
+## Ativação de TURN — 04/10/2026
+
+Credencial restrita ao TURN fornecida por Luis em arquivo local ignorado pelo Git. Endpoint retornou HTTP 200, cinco entradas ICE, incluindo TURN e TURN/TLS, e CORS compatível. Bancada usando a configuração real do jogo e política relay confirmou candidatos relay nos dois lados, canal conectado e ping/pong recebido. Evidência: `previews/turn-validado.png`. Algumas tentativas de candidatos retornaram 701, mas o par selecionado foi relay/relay e transportou dados; não se confundiu coleta parcial com falha total. Os testes unitários de conexão agora isolam a variável de ambiente para não chamar o provedor quando existe .env.local. A configuração de publicação foi registrada no GitHub; nenhuma chave administrativa ou arquivo .env foi commitado.

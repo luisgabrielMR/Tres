@@ -32,8 +32,8 @@ function connection(mode: 'create' | 'join', code = 'ABCDEFGH') {
   const result = new OnlineConnection(mode, code, next => { view = next; }); connections.push(result);
   return { result, view: () => view!, peer: () => fakes.Peer.instances.at(-1)! };
 }
-beforeEach(() => { vi.useFakeTimers(); fakes.Peer.instances = []; });
-afterEach(() => { connections.splice(0).forEach(c => c.close()); vi.useRealTimers(); });
+beforeEach(() => { vi.stubEnv('VITE_ICE_SERVERS_URL', ''); vi.useFakeTimers(); fakes.Peer.instances = []; });
+afterEach(() => { connections.splice(0).forEach(c => c.close()); vi.useRealTimers(); vi.unstubAllEnvs(); });
 
 it('códigos criptográficos são válidos e convites aceitam espaços/hífens', () => {
   for (let i = 0; i < 50; i++) expect(validCode(roomCode())).toBe(true);

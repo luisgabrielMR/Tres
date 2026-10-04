@@ -32,9 +32,9 @@ Não foi encontrada garantia contratual de disponibilidade/capacidade do serviç
 
 ## STUN e TURN
 
-Padrão atual: Google STUN, **sem TURN configurado**. A configuração substitui explicitamente os TURN antigos incluídos no PeerJS: o projeto [anunciou o encerramento desse serviço gratuito](https://github.com/orgs/peers/discussions/1172). A presença de endereços no pacote não comprova que o serviço funcione.
+Publicação configurada com o endpoint Metered fornecido por Luis, incluindo TURN/TLS. Instalações sem `VITE_ICE_SERVERS_URL` continuam usando somente Google STUN. A configuração substitui explicitamente os TURN antigos incluídos no PeerJS: o projeto [anunciou o encerramento desse serviço gratuito](https://github.com/orgs/peers/discussions/1172). A presença de endereços no pacote não comprova que o serviço funcione.
 
-Alternativa pesquisada: [Open Relay/Metered](https://www.metered.ca/tools/openrelay/) anuncia 20 GB/mês gratuitos e requer conta para obter acesso pela API. A [página de sinalização do mesmo provedor](https://www.metered.ca/tools/openrelay/webrtc-signaling-server/) anuncia a oferta gratuita sem cartão e sem excedentes para sua plataforma, incluindo relay. **Não houve cadastro, aceitação de termos ou validação do painel/cotas neste projeto.** Reconfirmar as condições na ativação; não habilitar plano pago ou cobrança automática.
+Alternativa pesquisada: [Open Relay/Metered](https://www.metered.ca/tools/openrelay/) anuncia 20 GB/mês gratuitos e requer conta para obter acesso pela API. A [página de sinalização do mesmo provedor](https://www.metered.ca/tools/openrelay/webrtc-signaling-server/) anuncia a oferta gratuita sem cartão e sem excedentes para sua plataforma, incluindo relay. **Luis criou a conta e a credencial; o agente não contratou plano pago. O painel de cotas/cobrança não foi acessado pelo agente.** Reconfirmar as condições na ativação; não habilitar plano pago ou cobrança automática.
 
 O cliente aceita `VITE_ICE_SERVERS_URL`: endpoint HTTPS que devolve um `RTCIceServer[]` com credenciais de TURN temporárias. Exemplo estrutural, não funcional:
 
@@ -44,14 +44,14 @@ O cliente aceita `VITE_ICE_SERVERS_URL`: endpoint HTTPS que devolve um `RTCIceSe
 
 A chave administrativa da API do provedor, caso utilizada, deve ficar em um emissor serverless seguro e nunca em `VITE_*`, Git, URL do convite ou código do navegador. A emissão deve limitar duração e uso segundo o plano gratuito contratado. Nenhum emissor foi publicado: depende da conta autorizada e do mecanismo de credenciais escolhido. Configurar somente a URL pública do emissor na variável de repositório `VITE_ICE_SERVERS_URL`; o workflow a passa ao Vite. A variável vazia mantém o modo direto/STUN.
 
-Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perda do relay. A validação final de TURN exige uma conexão com política `relay` em bancada ou redes em que o candidato selecionado seja `relay`, mais conferência da cota real do provedor. Os testes atuais confirmaram rota direta na mesma máquina, tanto em localhost quanto na URL pública. Não garantem conectividade entre NATs restritos, redes corporativas ou operadoras móveis.
+Se o endpoint configurado falhar, o aplicativo informa erro; não esconde a perda do relay. A validação final de TURN exige uma conexão com política `relay` em bancada ou redes em que o candidato selecionado seja `relay`, mais conferência da cota real do provedor. Os testes confirmaram rota direta na mesma máquina e, após ativação, ping/pong real com política obrigatória relay e par relay/relay na bancada localhost (imagem `previews/turn-validado.png`). Não garantem conectividade entre NATs restritos, redes corporativas ou operadoras móveis.
 
 ## Aceite ainda pendente
 
 - Concluído: acesso autorizado, commit/push, visibilidade pública e publicação HTTPS verificada.
-- Revisão das condições reais da conta/free tier de TURN e emissão segura de credenciais, se adotado.
-- Teste usando URL pública e dois dispositivos/redes; teste de relay separado.
-- A publicação foi verificada; testes em uma única máquina não substituem o aceite entre redes nem o teste de TURN.
+- Confirmação da cota real e ausência de cobrança no painel da conta criada por Luis; a integração não contrata nem altera planos.
+- Teste usando URL pública e dois dispositivos/redes. Teste de relay separado concluído em bancada.
+- A publicação e o relay foram verificados separadamente; testes em uma única máquina não substituem o aceite entre redes.
 
 ## Investigação de conexão — 04/10/2026
 
@@ -70,4 +70,4 @@ A [documentação atual do Metered](https://www.metered.ca/docs/turn-server-serv
 5. Reiniciar Vite, abrir `http://127.0.0.1:5173/tests/connectivity.html` e clicar **Testar TURN configurado**. A bancada usa a mesma configuração do jogo, força `iceTransportPolicy: relay`, exige ping/pong e mostra os tipos de candidatos do par selecionado, sem IPs/credenciais. Essa página não entra no build público.
 6. Só considerar TURN ativado após confirmar rota relay e troca de mensagens, publicar e testar em dispositivos/redes diferentes. O plano gratuito tem limites; nenhum serviço garante qualquer navegador/rede.
 
-A conta ainda não foi criada/configurada nesta revisão. O proprietário informou que pode criar a conta gratuita. TURN segue pendente.
+Luis criou a conta/credencial e preencheu os dados locais. A API aceitou a chave restrita à credencial (HTTP 200, cinco entradas, TURN e TURN/TLS, CORS *). A bancada confirmou relay/relay e ping/pong; configuração registrada na variável GitHub para publicação. O arquivo .env.local é ignorado pelo Git; o bundle público incorpora somente a URL com chave publicável, conforme documentação do provedor. Não foi alterado plano/cobrança pelo agente. Evidência: previews/turn-validado.png.

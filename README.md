@@ -6,7 +6,7 @@ Xadrez nos movimentos. Cartas a cada turno. Uma aplicação React + TypeScript +
 
 ## Estado da entrega
 
-Comitê 1 aprovado. Comitê 2 implementado a partir do mockup HTML fornecido por Luis, incluindo a alteração **cada peça pode mover no máximo uma vez por carta**. Modo local funcional, com todas as cartas e movimentos especiais. Comitê 3 em andamento: multiplayer WebRTC implementado e testado em duas sessões no navegador, com sinalização pública PeerJS. Site publicado no GitHub Pages em 04/10/2026, com convite e movimentos nos dois sentidos verificados na URL pública. Testes em redes/dispositivos distintos e validação por TURN continuam pendentes.
+Comitê 1 aprovado. Comitê 2 implementado a partir do mockup HTML fornecido por Luis, incluindo a alteração **cada peça pode mover no máximo uma vez por carta**. Modo local funcional, com todas as cartas e movimentos especiais. Comitê 3 em andamento: multiplayer WebRTC implementado e testado em duas sessões no navegador, com sinalização pública PeerJS. Site publicado no GitHub Pages em 04/10/2026, com convite e movimentos nos dois sentidos verificados na URL pública. TURN Metered validado em bancada com conexão obrigatoriamente relay/relay e resposta confirmada; testes em redes/dispositivos distintos continuam pendentes.
 
 ## Executar
 
@@ -60,8 +60,8 @@ Configuração experimental do baralho em `src/core/tres/deck.ts`. Não existe o
 
 Sem conta, banco, histórico, ranking, chat, analytics ou armazenamento de partidas no navegador. Salas aguardam por até dez minutos; cada uma recebe somente dois jogadores. O primeiro participante reserva a vaga no navegador criador. Estados nunca são enviados pelo signaling.
 
-O transporte padrão usa PeerJS Cloud e STUN, sem TURN configurado. Isso funciona em algumas redes, mas **não garante conexão em redes restritas**. O endpoint opcional `VITE_ICE_SERVERS_URL` aceita credenciais ICE temporárias: consulte `docs/deploy.md`. Nenhum segredo administrativo deve entrar no frontend.
+A publicação usa PeerJS Cloud para sinalização e o endpoint Metered configurado em `VITE_ICE_SERVERS_URL` para STUN/TURN, incluindo TLS na porta 443. O navegador escolhe conexão direta ou retransmissão conforme a rede. A chave é limitada à credencial TURN e explicitamente publicável; nenhum segredo administrativo entra no frontend. Sem essa variável, uma instalação nova usa somente Google STUN. Consulte `docs/deploy.md`.
 
 A recuperação é limitada à mesma conexão WebRTC durante 20 segundos, com conferência de estado. Refresh perde a identidade e a partida; um código não recupera uma sessão. Não há garantia de disponibilidade do serviço gratuito. Logs operacionais dos provedores são independentes do aplicativo.
 
-CI e deploy executados com sucesso no GitHub. Repositório tornado público com autorização explícita de Luis, usando GitHub Free e runners padrão. Nenhum plano pago ou serviço TURN foi ativado.
+CI e deploy executados com sucesso no GitHub. Repositório tornado público com autorização explícita de Luis, usando GitHub Free e runners padrão. TURN configurado com a credencial fornecida por Luis; nenhum plano pago foi ativado pelo agente. A oferta Open Relay anuncia 20 GB/mês gratuitos, sujeitos às condições/cotas do provedor.
