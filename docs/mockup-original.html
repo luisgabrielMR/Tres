@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tela de partida do Três</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Sans+Symbols+2&display=swap">
+<style>
+:root{
+  --doc:#EAE1D1; --paper:#F7F0E4; --surface:#FFFBF4; --ink:#1F1A14; --ink-2:#5B4F41; --line:#D9C9AE;
+  --accent:#2742B0; --accent-press:#1A2D7C; --accent-soft:#E2E7F8;
+  --sq-light:#EEDCBC; --sq-dark:#B5875A; --frame-wood:#6A4A2C;
+  --last:rgba(244,190,46,.55); --danger:#A8261C; --danger-soft:#FBE6E2; --warn:#7A5000; --warn-soft:#FDF0CF; --ok:#25683F;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --chess:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{margin:0}body{margin:0;background:var(--doc);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1560px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+p{margin:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ---------- documento ---------- */
+.doc-head{display:grid;grid-template-columns:auto 1fr auto;gap:12px 28px;align-items:end}
+.doc-head .mark{grid-row:span 2}
+.doc-head h1{font-size:clamp(32px,4vw,48px);font-weight:800;letter-spacing:-.02em}
+.doc-head .lead{color:var(--ink-2);max-width:62ch}
+.proto{display:inline-flex;align-items:center;gap:8px;border:2px dashed var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;background:var(--surface);white-space:nowrap}
+@media (max-width:760px){.doc-head{grid-template-columns:1fr}.doc-head .mark{grid-row:auto}}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1}
+.logo svg{flex:none}
+
+.viewer{display:flex;flex-direction:column;gap:16px}
+.vbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
+.vbar h2{font-size:24px}
+.vbar .ref{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);display:block;margin-bottom:4px}
+.vctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-weight:700;font-size:14px;border:0;background:none;padding:8px 14px;min-height:40px;cursor:pointer;color:var(--ink)}
+.seg button+button{border-left:2px solid var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.navbtn{font:inherit;font-weight:700;font-size:14px;border:2px solid var(--ink);background:var(--surface);border-radius:12px;min-height:40px;padding:0 12px;cursor:pointer;color:var(--ink)}
+.vbody{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.vbody{grid-template-columns:1fr}}
+.states{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.states h3{font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.states ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.states button{all:unset;box-sizing:border-box;display:flex;gap:8px;align-items:baseline;width:100%;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:14.5px;line-height:1.3}
+.states button:hover{background:var(--paper)}
+.states button:focus-visible{outline:3px solid var(--accent);outline-offset:0}
+.states button[aria-current="true"]{background:var(--ink);color:var(--surface)}
+.states .n{font-size:12px;font-weight:700;min-width:22px;opacity:.7;font-variant-numeric:tabular-nums}
+@media (max-width:900px){.states{flex-direction:row;overflow-x:auto;gap:18px}.states>div{flex:none}.states button{white-space:nowrap}}
+.stage{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;justify-content:center;min-width:0}
+.device{display:flex;flex-direction:column;gap:8px;min-width:0}
+.device .cap{font-size:13px;font-weight:700;color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase}
+.device.desk .screen{border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--paper);box-shadow:0 6px 0 rgba(31,26,20,.15)}
+.device.mob .screen{border:10px solid var(--ink);border-radius:34px;overflow:hidden;background:var(--paper);position:relative}
+.scaler{position:relative;overflow:hidden}
+.scaler>.frame{transform-origin:0 0;position:absolute;top:0;left:0}
+.fold{position:absolute;left:0;right:0;border-top:2px dashed rgba(168,38,28,.6);pointer-events:none;z-index:40}
+.fold span{position:absolute;right:6px;top:2px;font-size:11px;font-weight:700;color:var(--danger);background:var(--surface);padding:0 4px;border-radius:4px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;max-width:980px}
+.note strong{font-family:var(--display);font-size:15px}
+.note ul{margin:0;padding-left:18px;color:var(--ink-2)}
+
+.sec-title{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.sec-title h2{font-size:28px;font-weight:800;letter-spacing:-.01em}
+.sec-title p{color:var(--ink-2)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.thumb{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px}
+.thumb:hover{border-color:var(--ink)}
+.thumb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.thumb .scaler{border-radius:8px;border:1px solid var(--line);background:var(--paper)}
+.thumb .t{font-weight:700;font-size:14.5px;line-height:1.3}
+.thumb .r{font-size:12px;font-weight:700;color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase}
+
+.explain{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.explain article{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.explain h3{font-size:19px}
+.explain ul,.explain ol{margin:0;padding-left:20px;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.explain li strong{color:var(--ink)}
+
+/* ---------- jogo (dentro da moldura) ---------- */
+.frame{container:frame/inline-size;background:var(--paper)}
+.game{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"top top" "board panel";column-gap:32px;padding:0 32px 28px;font-family:var(--body);color:var(--ink);font-size:16px;min-height:100%}
+.topbar{grid-area:top;display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:22px;flex-wrap:wrap}
+.topbar .logo{font-size:26px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);white-space:nowrap}
+.badge svg{width:16px;height:16px}
+.badge.code{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+.badge.ok{color:var(--ok)} .badge.bad{color:var(--danger);border-color:var(--danger);background:var(--danger-soft)} .badge.sync{color:var(--accent)}
+.topbar .sp{flex:1}
+.btn{font:inherit;font-weight:700;font-size:16px;min-height:48px;padding:0 20px;border-radius:12px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;line-height:1.2}
+.btn svg{width:20px;height:20px;flex:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 3px 0 var(--accent-press)}
+.btn.primary:active{transform:translateY(2px);box-shadow:0 1px 0 var(--accent-press)}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:40px;font-size:14px;padding:0 14px;border-width:1.5px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+
+.boardcol{grid-area:board;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.boardcol>*{width:100%;max-width:624px}
+.strip{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:2px solid var(--line);border-radius:12px;min-height:52px}
+.strip.is-turn{border-color:var(--accent)}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--paper);border:1.5px solid var(--ink);flex:none}
+.who{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+.who strong{white-space:nowrap}
+.you{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--ink);color:var(--surface);vertical-align:middle}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;border-radius:999px;font-weight:700;font-size:14px;border:1.5px solid var(--ink);white-space:nowrap;vertical-align:middle;line-height:1.3}
+.chip .g{font-family:var(--chess);font-size:17px;line-height:1}
+.chip.w{background:#FFFDF8;color:var(--ink)}
+.chip.w .g{color:#FFFDF8;text-shadow:1px 0 var(--ink),-1px 0 var(--ink),0 1px var(--ink),0 -1px var(--ink),1px 1px var(--ink),-1px -1px var(--ink),1px -1px var(--ink),-1px 1px var(--ink)}
+.chip.b{background:var(--ink);color:#FFFBF4}
+.chip.b .g{color:#FFFBF4}
+.state{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.state svg{width:16px;height:16px}
+.state.on{color:var(--accent)}
+
+.board-wrap{position:relative;container:board/inline-size;border-radius:8px;padding:2.2cqw;background:var(--frame-wood);box-shadow:0 5px 0 #4A321D}
+.board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border-radius:4px;overflow:hidden}
+.board [role="row"]{display:contents}
+.sq{all:unset;box-sizing:border-box;position:relative;display:grid;place-items:center;aspect-ratio:1;background:var(--sq-light);cursor:default}
+.sq.d{background:var(--sq-dark)}
+.sq[data-go],.sq[data-toast]{cursor:pointer}
+.sq:focus-visible{outline:none;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 6px var(--ink);z-index:4}
+.pc{font-family:var(--chess);font-size:9.6cqw;line-height:1;position:relative;z-index:2;user-select:none;margin-top:-.4cqw}
+.pc.w{color:#FFFDF8;text-shadow:1.5px 0 #2A2017,-1.5px 0 #2A2017,0 1.5px #2A2017,0 -1.5px #2A2017,1px 1px #2A2017,-1px -1px #2A2017,1px -1px #2A2017,-1px 1px #2A2017,0 3px 3px rgba(0,0,0,.25)}
+.pc.b{color:#1E1711;text-shadow:0 1px 0 rgba(255,240,215,.35),0 3px 3px rgba(0,0,0,.22)}
+.cr,.cf{position:absolute;font-size:2.1cqw;font-weight:700;line-height:1;z-index:3;pointer-events:none}
+.cr{top:.6cqw;left:.7cqw} .cf{bottom:.6cqw;right:.8cqw}
+.sq .cr,.sq .cf{color:var(--sq-dark)} .sq.d .cr,.sq.d .cf{color:var(--sq-light)}
+.lastmark{position:absolute;inset:0;background:var(--last);z-index:1}
+.lastmark::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 2.6cqw 2.6cqw 0;border-color:transparent #7A5000 transparent transparent}
+.sq.is-sel{box-shadow:inset 0 0 0 .7cqw var(--accent),inset 0 0 0 1.1cqw #fff}
+.sq.is-sel .pc{transform:translateY(-.5cqw)}
+.dot{width:3.6cqw;height:3.6cqw;border-radius:50%;background:var(--accent);box-shadow:0 0 0 .5cqw rgba(255,255,255,.8);position:absolute;z-index:3}
+.capring{position:absolute;inset:6%;border-radius:50%;border:.7cqw solid var(--accent);z-index:3}
+.addmark{position:absolute;inset:14%;border-radius:50%;border:.5cqw dashed var(--accent);background:rgba(255,255,255,.7);display:grid;place-items:center;z-index:3;color:var(--accent);font-weight:800;font-family:var(--display);font-size:5.4cqw;line-height:1}
+.pendbox{position:absolute;inset:.5cqw;border:.45cqw dashed var(--accent);border-radius:3px;z-index:3}
+.pc.ghost{opacity:.5}
+.xmark{position:absolute;inset:16%;border-radius:50%;background:var(--danger);color:#fff;display:grid;place-items:center;font-weight:800;font-size:5cqw;z-index:3;box-shadow:0 0 0 .5cqw #fff}
+.chosen{position:absolute;inset:8%;border-radius:50%;border:.6cqw dashed var(--accent);background:rgba(226,231,248,.85);display:grid;place-items:center;z-index:3;color:var(--accent);font-weight:800;font-size:4.4cqw;font-family:var(--display)}
+.lock .sq{cursor:not-allowed}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;color:var(--ink-2);padding:2px 2px 0}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.lg{width:20px;height:20px;border-radius:3px;background:var(--sq-light);position:relative;display:inline-block;flex:none;overflow:hidden}
+.lg.sel{box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 0 5px #fff}
+.lg.dest::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--accent)}
+.lg.cap::after{content:"";position:absolute;inset:2px;border-radius:50%;border:2.5px solid var(--accent)}
+.lg.last{background:linear-gradient(var(--last),var(--last)),var(--sq-light)}
+.lg.last::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 8px 8px 0;border-color:transparent #7A5000 transparent transparent}
+
+.panel{grid-area:panel;display:flex;flex-direction:column;gap:16px;min-width:0}
+.turnbox{display:flex;gap:16px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:16px;padding:14px;box-shadow:0 4px 0 var(--ink)}
+.turn-txt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.turn-name{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.05;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.turn-color{font-size:15px;color:var(--ink-2)}
+.cardv{width:104px;flex:none;aspect-ratio:5/7;border-radius:12px;background:#FFFDF8;border:2px solid var(--ink);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;box-shadow:0 3px 0 var(--ink)}
+.cardv .co{position:absolute;top:6px;left:8px;font-weight:800;font-family:var(--display);font-size:14px;color:var(--accent)}
+.cardv .co.br{top:auto;left:auto;bottom:6px;right:8px;transform:rotate(180deg)}
+.cardv .sym{font-family:var(--display);font-weight:800;font-size:50px;line-height:.95;color:var(--accent);letter-spacing:-.03em;display:flex;align-items:center}
+.cardv .sym svg{width:50px;height:50px}
+.cardv .sub{font-family:var(--chess);font-size:20px;line-height:1;color:var(--ink)}
+.cardv .nm{font-weight:700;font-size:13px;text-align:center;line-height:1.15}
+.cardv.back{background:var(--accent);border-color:var(--accent-press);box-shadow:0 3px 0 var(--accent-press);color:#fff}
+.cardv.back::before{content:"";position:absolute;inset:6px;border:1.5px solid rgba(255,255,255,.55);border-radius:7px}
+.cardv.back .nm{color:#fff}
+.stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-14deg);background:var(--surface);border:2px solid var(--danger);color:var(--danger);font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap;z-index:2}
+.cardv.void>*:not(.stamp){opacity:.4}
+
+.action{display:flex;flex-direction:column;gap:12px}
+.big{font-family:var(--display);font-weight:800;font-size:22px;line-height:1.15;letter-spacing:-.01em}
+.muted{color:var(--ink-2);font-size:15px}
+.hint{display:flex;gap:8px;font-size:14.5px;color:var(--ink-2);align-items:flex-start}
+.hint svg{width:18px;height:18px;flex:none;margin-top:2px;color:var(--accent)}
+.pips{display:flex;gap:8px;list-style:none;margin:0;padding:0;align-items:center}
+.pips li{width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-size:14px;font-weight:800}
+.pips li.used{background:var(--ink);color:var(--surface)}
+.pips li.used svg{width:16px;height:16px}
+.count{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.waitbox{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px dashed var(--line);border-radius:14px;background:var(--surface)}
+.waitbox svg{width:22px;height:22px;flex:none;color:var(--ink-2);margin-top:2px}
+.spin{width:22px;height:22px;flex:none;border-radius:50%;border:3px solid var(--accent-soft);border-top-color:var(--accent);animation:spin 1s linear infinite;margin-top:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.banner{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;border:2px solid var(--accent);background:var(--accent-soft)}
+.banner svg.i{width:22px;height:22px;flex:none;margin-top:1px;color:var(--accent)}
+.banner.warn{border-color:var(--warn);background:var(--warn-soft)} .banner.warn svg.i{color:var(--warn)}
+.banner.danger{border-color:var(--danger);background:var(--danger-soft)} .banner.danger svg.i{color:var(--danger)}
+.banner .bt{font-weight:700;font-size:16px;line-height:1.3}
+.banner .bx{font-size:14.5px;color:var(--ink-2);margin-top:2px}
+.banner .ba{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.banner.loud .bt{font-family:var(--display);font-weight:800;font-size:20px}
+
+.swap{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:12px}
+.swap h4{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.swap .row{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700}
+.swap .row div{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.swap .arrow{color:var(--accent)} .swap .arrow svg{width:26px;height:26px}
+.swap .after .chip{animation:chipin .6s ease-out both}
+.swap .after div:nth-child(2) .chip{animation-delay:.12s}
+@keyframes chipin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.headline{font-family:var(--display);font-weight:800;font-size:24px;line-height:1.1;color:var(--accent);display:flex;gap:10px;align-items:center}
+.headline svg{width:28px;height:28px;flex:none}
+
+.lastmove{display:flex;flex-direction:column;gap:2px;padding-top:12px;border-top:1px solid var(--line)}
+.lastmove span{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.lastmove strong{font-size:15.5px}
+.log h3{font-family:var(--body);font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.log ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.log li{padding-left:14px;position:relative;line-height:1.35}
+.log li::before{content:"";position:absolute;left:0;top:.5em;width:6px;height:6px;border-radius:50%;background:var(--line)}
+.log li:last-child{font-weight:700}
+.log li:last-child::before{background:var(--accent)}
+
+.ov{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:16px;background:rgba(247,240,228,.84);backdrop-filter:blur(2px);border-radius:8px}
+.game>.ov{z-index:30;border-radius:0;background:rgba(31,26,20,.45)}
+.dlg{background:var(--surface);border:2px solid var(--ink);border-radius:18px;padding:22px;max-width:420px;width:100%;box-shadow:0 6px 0 var(--ink);display:flex;flex-direction:column;gap:12px}
+.dlg h3{font-size:24px;font-weight:800}
+.dlg .ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+.dlg .ic svg{width:28px;height:28px}
+.dlg .ic.bad{background:var(--danger-soft);color:var(--danger)}
+.dlg dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px;align-items:center}
+.dlg dt{color:var(--ink-2)} .dlg dd{margin:0;font-weight:700}
+.dlg .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.dlg .acts .btn{flex:1}
+.win h3{font-size:34px;letter-spacing:-.02em}
+.promo{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border:0;margin:0;padding:0}
+.promo legend{font-weight:700;margin-bottom:8px;font-size:15px;padding:0}
+.promo label{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;border:2px solid var(--line);border-radius:12px;cursor:pointer;background:#FFFDF8;min-height:88px;justify-content:center}
+.promo input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.promo .pg{font-family:var(--chess);font-size:40px;line-height:1;color:#FFFDF8;text-shadow:1.5px 0 #2A2017,-1.5px 0 #2A2017,0 1.5px #2A2017,0 -1.5px #2A2017,1px 1px #2A2017,-1px -1px #2A2017,1px -1px #2A2017,-1px 1px #2A2017}
+.promo .pl{font-weight:700;font-size:14px}
+.promo label:has(input:checked){border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.promo label:has(input:checked)::after{content:"✓";position:absolute;top:4px;right:6px;font-weight:800;color:var(--accent);font-size:14px}
+.promo label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+
+.toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14.5px;font-weight:700;z-index:50;max-width:calc(100% - 32px);text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+
+/* ---------- celular ---------- */
+@container frame (max-width:720px){
+  .game{grid-template-columns:1fr;grid-template-areas:"top" "board" "panel";padding:0 12px 20px;column-gap:0}
+  .topbar{padding:10px 0;margin-bottom:12px;gap:8px}
+  .topbar .logo{font-size:22px}
+  .topbar .logo svg{width:22px;height:22px}
+  .badge{font-size:12.5px;padding:4px 8px}
+  .topbar .hide-m{display:none}
+  .topbar .btn.sm{min-height:44px;padding:0 10px}
+  .boardcol{gap:8px}
+  .strip{min-height:48px;padding:6px 10px;gap:8px}
+  .strip .avatar{width:28px;height:28px;font-size:12px}
+  .board-wrap{padding:1.6cqw}
+  .legend{font-size:12.5px;gap:4px 12px}
+  .panel{gap:12px;margin-top:14px}
+  .turnbox{padding:10px;gap:12px;box-shadow:0 3px 0 var(--ink)}
+  .cardv{width:76px;border-radius:10px;padding:6px 4px}
+  .cardv .sym{font-size:36px} .cardv .sym svg{width:36px;height:36px}
+  .cardv .nm{font-size:11.5px} .cardv .co{font-size:12px;top:4px;left:6px} .cardv .co.br{bottom:4px;right:6px}
+  .cardv .sub{font-size:16px}
+  .turn-name{font-size:23px}
+  .big{font-size:20px}
+  .headline{font-size:21px}
+  .log li:not(:nth-last-child(-n+2)){display:none}
+  .dlg{padding:18px}
+  .win h3{font-size:28px}
+  .promo .pg{font-size:34px}
+  .promo label{min-height:80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="doc-head">
+    <div class="mark logo" style="font-size:64px"><svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true"><rect x="6" y="12" width="24" height="34" rx="4" transform="rotate(-14 18 29)" fill="#FFFDF8" stroke="#1F1A14" stroke-width="2.5"/><rect x="17" y="9" width="24" height="34" rx="4" fill="#FFFDF8" stroke="#1F1A14" stroke-width="2.5"/><rect x="28" y="12" width="24" height="34" rx="4" transform="rotate(14 40 29)" fill="#2742B0" stroke="#1A2D7C" stroke-width="2.5"/></svg>Três</div>
+    <div>
+      <h1>Tela de partida</h1>
+      <p class="lead">Xadrez nos movimentos. Cartas a cada turno. A tela principal da partida no computador e no celular.</p>
+    </div>
+    <span class="proto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>Protótipo com dados fictícios</span>
+  </header>
+
+  <div class="stage" id="stage"></div>
+</div>
+
+<script>
+const FILES='abcdefgh';
+const GL={K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'};
+const NM={K:['rei','m'],Q:['dama','f'],R:['torre','f'],B:['bispo','m'],N:['cavalo','m'],P:['peão','m']};
+const COLOR={w:'Brancas',b:'Pretas'};
+const ROOM='K7P4X2';
+let uid=0;
+
+const I={
+  wifi:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/></svg>',
+  wifiOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18M8.5 16a5 5 0 0 1 7 0M12 19.5h.01M5 12.5a10 10 0 0 1 4-2.3M2 9a15 15 0 0 1 5-3M19 12.5a10 10 0 0 0-2.5-1.8M22 9a15 15 0 0 0-9-4"/></svg>',
+  device:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>',
+  hour:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9"/></svg>',
+  info:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5h.01"/></svg>',
+  alert:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>',
+  x:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg>',
+  block:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+  crown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z"/></svg>',
+  retry:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>',
+  hand:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 12h8"/></svg>'
+};
+
+function parseFEN(f){const m={};f.split('/').forEach((row,i)=>{const rank=8-i;let fi=0;for(const ch of row){if(/\d/.test(ch))fi+=+ch;else{m[FILES[fi]+rank]=(ch===ch.toUpperCase()?'w':'b')+ch.toUpperCase();fi++}}});return m}
+function pname(p){const[n,g]=NM[p[1]];return n+' '+(p[0]==='w'?(g==='f'?'branca':'branco'):(g==='f'?'preta':'preto'))}
+const chip=c=>`<span class="chip ${c}"><span class="g" aria-hidden="true">♚&#xFE0E;</span>${COLOR[c]}</span>`;
+function btn(label,o={}){return `<button type="button" class="btn ${o.k||''}" ${o.go?`data-go="${o.go}"`:''} ${o.t?`data-toast="${o.t}"`:''} ${o.dis?'disabled':''}>${o.i||''}${label}</button>`}
+function pips(total,used){let h='<ol class="pips" aria-label="Movimentos da carta">';for(let i=1;i<=total;i++)h+=i<=used?`<li class="used" aria-label="Movimento ${i}: feito">${I.check}</li>`:`<li aria-label="Movimento ${i}: restante">${i}</li>`;return h+'</ol>'}
+function banner(b){return `<div class="banner ${b.tone||''} ${b.loud?'loud':''}" role="${b.tone==='danger'?'alert':'status'}">${b.icon||I.info}<div><p class="bt">${b.title}</p>${b.text?`<p class="bx">${b.text}</p>`:''}${b.acts?`<div class="ba">${b.acts}</div>`:''}</div></div>`}
+function wait(text,sub,icon){return `<div class="waitbox">${icon||I.hour}<div><p style="font-weight:700">${text}</p>${sub?`<p class="muted">${sub}</p>`:''}</div></div>`}
+function swapBox(){return `<div class="swap" aria-label="Antes e depois do Reverse">
+  <div class="row"><h4>Antes</h4><div>Jogador 1 ${chip('w')}</div><div>Jogador 2 ${chip('b')}</div></div>
+  <div class="arrow">${I.swap}</div>
+  <div class="row after"><h4>Depois</h4><div>Jogador 1 ${chip('b')}</div><div>Jogador 2 ${chip('w')}</div></div></div>`}
+
+function cardHTML(c){
+  if(!c)return `<div class="cardv back" role="img" aria-label="Monte de cartas. Nenhuma carta comprada neste turno."><span class="sym" style="color:#fff;font-size:34px">Três</span><span class="nm">Monte</span></div>`;
+  let sym,nm,co,sub='';
+  if(c.t==='n'){sym=c.n;co=c.n;nm=`Carta ${c.n}`}
+  if(c.t==='p2'){sym='+2';co='+2';sub='♟&#xFE0E;♟&#xFE0E;';nm='+2 Peões'}
+  if(c.t==='p4'){sym='+4';co='+4';sub='♛&#xFE0E;';nm='+4 Dama'}
+  if(c.t==='rev'){sym=I.swap;co='⇄';nm='Reverse'}
+  if(c.t==='blk'){sym=I.block;co='⊘';nm='Bloqueio'}
+  return `<div class="cardv ${c.void?'void':''}" role="img" aria-label="Carta atual: ${nm}${c.void?', sem efeito':''}"><span class="co">${co}</span><span class="sym">${sym}</span>${sub?`<span class="sub">${sub}</span>`:''}<span class="nm">${nm}</span><span class="co br">${co}</span>${c.void?'<span class="stamp">Sem efeito</span>':''}</div>`;
+}
+
+function strip(s,c){
+  const p=s.colors[1]===c?1:2,turn=s.turn===p,you=s.mode==='online'&&s.me===p;
+  const st=(s.stripSt&&s.stripSt[p])||(turn?'Na vez':'Aguardando');
+  return `<div class="strip ${turn?'is-turn':''}"><span class="avatar" aria-hidden="true">J${p}</span><span class="who"><strong>Jogador ${p}</strong>${you?'<span class="you">você</span>':''}</span>${chip(c)}<span class="state ${turn?'on':''}">${turn?I.play:I.hour}${st}</span></div>`;
+}
+
+function topbar(s){
+  const mode=s.mode==='online'
+    ?`<span class="badge">${I.wifi}Online</span><span class="badge code hide-m" aria-label="Código da sala">Sala ${ROOM}</span>`
+    :`<span class="badge">${I.device}Local<span class="hide-m">&nbsp;· mesmo dispositivo</span></span>`;
+  let conn='';
+  if(s.mode==='online'){
+    if(s.conn==='lost')conn=`<span class="badge bad">${I.wifiOff}Sem conexão</span>`;
+    else if(s.conn==='sync')conn=`<span class="badge sync"><span class="spin" style="width:14px;height:14px;border-width:2px;margin:0"></span>Enviando…</span>`;
+    else conn=`<span class="badge ok hide-m">${I.check}Conectado</span>`;
+  }
+  return `<header class="topbar"><span class="logo"><svg width="26" height="26" viewBox="0 0 58 58" aria-hidden="true"><rect x="6" y="12" width="24" height="34" rx="4" transform="rotate(-14 18 29)" fill="#FFFDF8" stroke="#1F1A14" stroke-width="3.5"/><rect x="17" y="9" width="24" height="34" rx="4" fill="#FFFDF8" stroke="#1F1A14" stroke-width="3.5"/><rect x="28" y="12" width="24" height="34" rx="4" transform="rotate(14 40 29)" fill="#2742B0" stroke="#1A2D7C" stroke-width="3.5"/></svg>Três</span>${mode}${conn}<span class="sp"></span>${btn('Sair',{k:'ghost sm',t:'Sair pediria confirmação e levaria à tela inicial, fora desta entrega.'})}</header>`;
+}
+
+function boardHTML(s,flip){
+  const b=parseFEN(s.fen);
+  const T=new Set(s.targets||[]),A=new Set(s.adds||[]),L=new Set(s.last||[]);
+  const focusSq=s.sel||(s.adds&&s.adds[0])||(flip?'h1':'a8');
+  let h=`<div class="board ${s.lock?'lock':''}" role="grid" aria-label="Tabuleiro, ${flip?'pretas':'brancas'} embaixo${s.lock?'. Interação pausada':''}" ${s.lock?'aria-disabled="true"':''}>`;
+  for(let r=0;r<8;r++){
+    h+='<div role="row">';
+    for(let c=0;c<8;c++){
+      const rank=flip?r+1:8-r,fi=flip?7-c:c,sq=FILES[fi]+rank,dark=(fi+rank)%2===1;
+      let p=b[sq];const pend=s.pending;
+      let ghost=false;
+      if(pend&&sq===pend.to){ghost=true}
+      const cls=['sq'];if(dark)cls.push('d');
+      const lab=[sq,p?pname(p):'vazia'];
+      let inner='';
+      if(L.has(sq)){inner+='<span class="lastmark"></span>';lab.push('última jogada')}
+      if(s.sel===sq){cls.push('is-sel');lab.push('selecionada')}
+      if(p)inner+=`<span class="pc ${p[0]} ${ghost?'ghost':''}" aria-hidden="true">${GL[p[1]]}&#xFE0E;</span>`;
+      if(T.has(sq)){if(p){inner+='<span class="capring"></span>';lab.push('destino válido, captura')}else{inner+='<span class="dot"></span>';lab.push('destino válido')}}
+      if(A.has(sq)){inner+=`<span class="addmark" aria-hidden="true">+</span>`;lab.push(s.addLabel||'casa válida para adicionar peça')}
+      if(pend&&(sq===pend.from||sq===pend.to)){inner+='<span class="pendbox"></span>';lab.push(sq===pend.to?'jogada aguardando confirmação':'origem da jogada pendente')}
+      if(s.invalid===sq){inner+='<span class="xmark" aria-hidden="true">✕</span>';lab.push('destino inválido')}
+      if(s.chosen===sq){inner+='<span class="chosen" aria-hidden="true">?</span>';lab.push('destino escolhido, aguardando promoção')}
+      if(c===0)inner+=`<span class="cr" aria-hidden="true">${rank}</span>`;
+      if(r===7)inner+=`<span class="cf" aria-hidden="true">${FILES[fi]}</span>`;
+      const ck=s.clicks&&s.clicks[sq];
+      const act=ck?(ck.go?`data-go="${ck.go}"`:`data-toast="${ck.t}"`):'';
+      h+=`<button type="button" role="gridcell" class="${cls.join(' ')}" data-r="${r}" data-c="${c}" tabindex="${sq===focusSq?0:-1}" aria-label="${lab.join(', ')}" ${act}>${inner}</button>`;
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+
+const legend=()=>`<div class="legend" aria-label="Legenda do tabuleiro"><span><i class="lg sel"></i>Selecionada</span><span><i class="lg dest"></i>Destino válido</span><span><i class="lg cap"></i>Captura</span><span><i class="lg last"></i>Última jogada</span></div>`;
+
+function turnbox(s){
+  const tc=s.colors[s.turn];
+  const eb=s.eyebrow||(s.mode==='online'?(s.me===s.turn?'Sua vez':'Vez do adversário'):'Vez de');
+  const you=s.mode==='online'&&s.me===s.turn?'<span class="you">você</span>':'';
+  return `<div class="turnbox">${cardHTML(s.card)}<div class="turn-txt"><p class="eyebrow">${eb}</p><p class="turn-name">Jogador ${s.turn} ${you}</p><p class="turn-color">controla ${chip(tc)}</p></div></div>`;
+}
+
+function renderGame(s){
+  const flip=s.flip!==undefined?s.flip:(s.mode==='online'?s.colors[s.me]==='b':s.colors[s.turn]==='b');
+  const top=flip?'w':'b',bot=flip?'b':'w';
+  const ov=s.boardOv?s.boardOv():'',gov=s.gameOv?s.gameOv():'';
+  return `<div class="game">
+    ${topbar(s)}
+    <div class="boardcol">${strip(s,top)}<div class="board-wrap">${boardHTML(s,flip)}${ov}</div>${strip(s,bot)}${legend()}</div>
+    <aside class="panel" aria-label="Turno e carta">
+      ${s.banner?banner(s.banner):''}
+      ${turnbox(s)}
+      <div class="action">${s.action}</div>
+      <div class="lastmove"><span>Última jogada</span><strong>${s.lastText}</strong></div>
+    </aside>
+    ${gov}
+    <div class="toast" role="status" hidden></div>
+  </div>`;
+}
+
+/* ---------- posições ---------- */
+const P_START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+const P_E4='rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR';
+const P_A='r1bqk2r/ppp2pp1/2np1n1p/4p3/1bBPP3/5N1P/PPPN1PP1/R1BQK2R';
+const P_A2='r1bqk2r/ppp2pp1/2np1n1p/4p3/1bBPP3/5N1P/PPPNPPP1/R1BQK2R';
+const P_FULL7='r1bqkb1r/pppppppp/2n2n2/8/3PP3/5N2/PPP2PPP/RNBQKB1R';
+const P_B='r2qkb1r/ppp2ppp/2np1n2/4p3/2B1P1b1/2NP1N2/PPP2PPP/R1BQK2R';
+const P_FULL8='rnbqkbnr/ppp2ppp/3p4/4p3/3PP3/8/PPP2PPP/RNBQKBNR';
+const P_PROMO='4r1k1/1P3ppp/2n5/8/2B5/8/5PPP/3R2K1';
+const P_WIN='5rk1/5ppp/8/8/1b6/5N2/PP4PP/R3q3';
+const P_PEND='rnbqkbnr/pppppppp/8/8/4P3/5N2/PPPP1PPP/RNBQKB1R';
+
+const W1={1:'w',2:'b'},B1={1:'b',2:'w'};
+const logA=['Jogador 2 (Pretas) moveu peão f7 → f6… e outros lances anteriores.'];
+const logStart=['Partida criada na sala K7P4X2.','Jogador 2 entrou. A partida começou.','Jogador 1 controla as Brancas.'];
+const card3=(rem,extra='')=>`<div class="count">${pips(3,3-rem)}<p class="big">${rem} movimento${rem>1?'s':''} restante${rem>1?'s':''}</p></div>${extra}`;
+
+const S=[
+ {id:'s4',ref:'Item 4',g:'Partida',label:'Aguardando compra (online)',mode:'online',me:1,colors:W1,turn:1,fen:P_START,card:null,
+  action:`<p class="big">Compre uma carta para começar seu turno.</p>${btn('Comprar carta',{k:'primary block',go:'s5'})}<p class="muted">O Jogador 2 está aguardando.</p>`,
+  lastText:'Nenhuma jogada ainda',log:logStart,
+  note:['Posição inicial completa: 32 peças, dama branca em d1 e rei branco em e1.','“Comprar carta” só aparece para quem tem a vez. Clique nele para seguir para a carta 3.','Badge “Online · Sala K7P4X2” identifica o modo; “você” marca a pessoa local.']},
+ {id:'s4l',ref:'Item 4',g:'Partida',label:'Aguardando compra (local)',mode:'local',colors:W1,turn:1,fen:P_START,card:null,
+  action:`<p class="big">Jogador 1, compre uma carta.</p>${btn('Comprar carta',{k:'primary block',t:'Demonstração: a carta seria revelada aqui.'})}<p class="muted">Jogador 2 aguarda. Passem o aparelho ao fim do turno.</p>`,
+  lastText:'Nenhuma jogada ainda',log:['Partida local iniciada.','Jogador 1 controla as Brancas.'],
+  note:['Modo local: as duas pessoas no mesmo aparelho; o badge diz “Local · mesmo dispositivo”.','Sem marca “você”: a tela fala com quem tem a vez pelo nome.']},
+ {id:'s4w',ref:'Item 4',g:'Partida',label:'Esperando o adversário',mode:'online',me:2,colors:W1,turn:1,fen:P_START,card:null,
+  action:wait('Aguardando o Jogador 1 comprar uma carta.','Você joga com as Pretas quando chegar a sua vez.'),
+  lastText:'Nenhuma jogada ainda',log:logStart,
+  note:['Mesmo momento visto pelo Jogador 2: sem botão de compra, só a indicação de espera.','No online, o tabuleiro segue a cor de quem está no aparelho: pretas embaixo.']},
+ {id:'s5',ref:'Item 5',g:'Partida',label:'Carta 3 · 2 movimentos restantes',mode:'online',me:1,colors:W1,turn:1,fen:P_E4,card:{t:'n',n:3},
+  sel:'g1',targets:['e2','f3','h3'],last:['e2','e4'],clicks:{f3:{go:'e2'},e2:{t:'Demonstração: cavalo g1 → e2.'},h3:{t:'Demonstração: cavalo g1 → h3.'}},
+  action:card3(2,`<p class="hint">${I.info.replace('class="i"','')}<span><strong style="color:var(--ink)">Cavalo em g1 selecionado.</strong> Escolha um destino destacado.</span></p><p class="hint">${I.info.replace('class="i"','')}<span>A mesma peça pode fazer mais de um movimento nesta carta.</span></p>${btn('Trocar de peça',{k:'ghost sm',t:'Demonstração: a seleção seria desfeita.'})}`),
+  lastText:'Jogador 1 · peão e2 → e4',log:['Jogador 2 entrou. A partida começou.','Jogador 1 comprou a carta 3.','Jogador 1 (Brancas) moveu peão e2 → e4.'],
+  note:['Carta 3 com um movimento feito (✓) e “2 movimentos restantes”. Não há botão de pular.','Destinos do cavalo g1: e2 (liberada pelo peão), f3 e h3. Clique em f3 para ver o envio online.','Última jogada e2 → e4 marcada com tom âmbar e canto escuro.']},
+ {id:'s6',ref:'Item 6',g:'Cartas',label:'+2 · escolher casa',mode:'online',me:1,colors:W1,turn:1,fen:P_A,card:{t:'p2'},
+  adds:['e2','h2'],addLabel:'casa vazia, válida para adicionar peão branco',last:['h7','h6'],clicks:{e2:{go:'s6b'},h2:{t:'Demonstração: peão adicionado em h2.'}},
+  action:`<p class="big">Até 2 peões disponíveis</p><p class="muted">Escolha uma casa vazia da fileira 2 para adicionar um peão branco.</p>${btn('Ignorar carta',{k:'ghost block',t:'Demonstração: a carta seria descartada e a vez passaria ao Jogador 2.'})}`,
+  lastText:'Jogador 2 · peão h7 → h6',log:['Jogador 1 (Brancas) moveu bispo f1 → c4.','Jogador 2 (Pretas) moveu peão h7 → h6.','Jogador 1 comprou +2.'],
+  note:['Fileira 2 tem só e2 e h2 vazias; a2, b2, c2, f2, g2 (peões) e d2 (cavalo) não são destacadas.','Clique em e2 para ver o estado seguinte.']},
+ {id:'s6b',ref:'Item 6',g:'Cartas',label:'+2 · 1 peão disponível',mode:'online',me:1,colors:W1,turn:1,fen:P_A2,card:{t:'p2'},
+  adds:['h2'],addLabel:'casa vazia, válida para adicionar peão branco',last:['e2'],clicks:{h2:{t:'Demonstração: segundo peão em h2; a vez passaria ao Jogador 2.'}},
+  action:`<p class="big">1 peão disponível</p><p class="muted">Escolha mais uma casa vazia da fileira 2 ou encerre a carta.</p>${btn('Encerrar com 1 peão',{k:'block',t:'Demonstração: a vez passaria ao Jogador 2.'})}`,
+  lastText:'Jogador 1 · peão adicionado em e2',log:['Jogador 2 (Pretas) moveu peão h7 → h6.','Jogador 1 comprou +2.','Jogador 1 adicionou um peão branco em e2.'],
+  note:['O peão novo em e2 aparece como última jogada; só h2 continua válida.','“Ignorar carta” vira “Encerrar com 1 peão”.']},
+ {id:'s6c',ref:'Item 6',g:'Cartas',label:'+2 · sem espaço',mode:'online',me:2,colors:W1,turn:1,fen:P_FULL7,card:{t:'p2',void:true},last:['d2','d4'],
+  eyebrow:'Vez do adversário',
+  banner:{tone:'warn',icon:I.alert,title:'A carta +2 não teve efeito.',text:'A fileira 7 não tem casas vazias para peões pretos.'},
+  action:wait('A vez passou para o Jogador 1.','Você comprou +2, mas não havia espaço. Aguarde a compra do Jogador 1.'),
+  lastText:'Jogador 1 · peão d2 → d4',log:['Jogador 1 (Brancas) moveu peão d2 → d4.','Jogador 2 comprou +2.','Fileira 7 cheia: +2 sem efeito. Vez do Jogador 1.'],
+  note:['Visto pelo Jogador 2 (Pretas): os oito peões pretos ocupam a fileira 7.','A carta recebe o selo “Sem efeito”; o aviso fica até a próxima ação.']},
+ {id:'s7',ref:'Item 7',g:'Cartas',label:'+4 após Reverse',mode:'online',me:1,colors:B1,turn:1,fen:P_B,card:{t:'p4'},
+  adds:['b8','c8','g8'],addLabel:'casa vazia, válida para adicionar dama preta',last:['b1','c3'],clicks:{b8:{t:'Demonstração: dama preta adicionada em b8.'},c8:{t:'Demonstração: dama preta adicionada em c8.'},g8:{t:'Demonstração: dama preta adicionada em g8.'}},
+  action:`<p class="big">Escolha uma casa para adicionar uma dama</p><p class="muted">A nova dama será <strong style="color:var(--ink)">preta</strong>, a cor que você controla agora. Só casas vazias da fileira 8.</p>${btn('Ignorar carta',{k:'ghost block',t:'Demonstração: a carta seria descartada e a vez passaria ao Jogador 2.'})}`,
+  lastText:'Jogador 1 · cavalo b1 → c3 (com as Brancas)',log:['Jogador 1 (Brancas) moveu cavalo b1 → c3.','Jogador 2 comprou Reverse. As cores trocaram de dono.','Jogador 1, agora com as Pretas, comprou +4.'],
+  note:['Após o Reverse, o Jogador 1 controla as Pretas e vê o tabuleiro pelo lado preto.','Fileira 8: só b8, c8 e g8 vazias e destacadas; torres, dama, rei e bispo ficam sem marca.']},
+ {id:'s7b',ref:'Item 7',g:'Cartas',label:'+4 · sem espaço',mode:'online',me:1,colors:B1,turn:2,fen:P_FULL8,card:{t:'p4',void:true},last:['d2','d4'],
+  banner:{tone:'warn',icon:I.alert,title:'A carta +4 não teve efeito.',text:'A fileira 8 não tem casas vazias para uma dama preta.'},
+  action:wait('A vez passou para o Jogador 2.','Ele agora controla as Brancas.'),
+  lastText:'Jogador 1 · peão d2 → d4 (com as Brancas)',log:['Jogador 1 (Brancas) moveu peão d2 → d4.','Jogador 2 comprou Reverse. As cores trocaram de dono.','Jogador 1 comprou +4. Fileira 8 cheia: sem efeito.'],
+  note:['Todas as casas da fileira 8 estão ocupadas pelas peças pretas iniciais.','A vez segue para o Jogador 2 sem exigir ação.']},
+ {id:'s8',ref:'Item 8',g:'Cartas',label:'Reverse (local)',mode:'local',colors:B1,turn:2,fen:P_A,card:{t:'rev'},last:['h7','h6'],eyebrow:'Próxima vez',
+  action:`<p class="headline">${I.swap}As cores trocaram de dono</p>${swapBox()}<p class="muted">As peças continuam com as mesmas cores e nas mesmas casas.</p>${btn('Passar para o Jogador 2',{k:'primary block',t:'Demonstração: o Jogador 2 compraria uma carta com as Brancas.'})}`,
+  lastText:'Jogador 2 · peão h7 → h6 (com as Pretas)',log:['Jogador 2 (Pretas) moveu peão h7 → h6.','Jogador 1 comprou Reverse.','As cores trocaram de dono. Vez do Jogador 2, agora com as Brancas.'],
+  note:['Mesma posição do +2: nenhuma peça mudou de casa ou de cor.','No modo local, o tabuleiro segue a cor de quem joga; o Jogador 2 agora tem as Brancas, então as brancas ficam embaixo.','Os chips de “Depois” entram com um leve deslize; com “reduzir movimento” aparecem parados.']},
+ {id:'s8b',ref:'Item 8',g:'Cartas',label:'Reverse (online, Jogador 1)',mode:'online',me:1,colors:B1,turn:2,fen:P_A,card:{t:'rev'},last:['h7','h6'],
+  banner:{tone:'',loud:true,icon:I.info,title:'As cores trocaram de dono',text:'Agora você controla as Pretas. O tabuleiro girou para mostrar suas peças embaixo; nenhuma peça mudou de casa.'},
+  action:`${swapBox()}${wait('Aguardando o Jogador 2 comprar uma carta.','Ele joga agora com as Brancas.')}`,
+  lastText:'Jogador 2 · peão h7 → h6 (com as Pretas)',log:['Jogador 2 (Pretas) moveu peão h7 → h6.','Você comprou Reverse.','As cores trocaram de dono. Vez do Jogador 2.'],
+  note:['Mesma jogada, vista pelo Jogador 1 no online: a orientação acompanha a cor do jogador local.','As faixas trocam de lado junto com o tabuleiro: Jogador 1 (Pretas) embaixo.']},
+ {id:'s9',ref:'Item 9',g:'Cartas',label:'Bloqueio',mode:'local',colors:W1,turn:2,fen:P_A,card:{t:'blk'},last:['h7','h6'],
+  banner:{tone:'warn',loud:true,icon:I.hand,title:'Turno bloqueado. Agora é a vez do Jogador 2.',text:'O Jogador 1 comprou Bloqueio e não move peças neste turno.'},
+  action:`<p class="big">Jogador 2, compre uma carta.</p>${btn('Comprar carta',{k:'primary block',t:'Demonstração: a carta do Jogador 2 seria revelada.'})}`,
+  lastText:'Jogador 2 · peão h7 → h6',log:['Jogador 2 (Pretas) moveu peão h7 → h6.','Jogador 1 comprou Bloqueio.','Turno bloqueado. Vez do Jogador 2.'],
+  note:['O aviso não some sozinho: fica visível até o Jogador 2 comprar a próxima carta.','Nenhuma ação de movimento é pedida. No modo local o tabuleiro já gira para as Pretas, cor de quem joga.']},
+ {id:'s10',ref:'Item 10',g:'Cartas',label:'Promoção',mode:'online',me:1,colors:W1,turn:1,fen:P_PROMO,card:{t:'n',n:2},sel:'b7',chosen:'b8',last:['b6','b7'],lock:true,
+  action:`<div class="count">${pips(2,1)}<p class="big">1 movimento restante</p></div><p class="muted">Escolha a peça da promoção para confirmar b7 → b8.</p>`,
+  lastText:'Jogador 1 · peão b6 → b7',log:['Jogador 2 (Pretas) moveu torre a8 → e8.','Jogador 1 comprou a carta 2.','Jogador 1 (Brancas) moveu peão b6 → b7.'],
+  boardOv:()=>{const n=++uid;return `<div class="ov"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="pt${n}"><h3 id="pt${n}">Promover peão</h3><p class="muted">O peão em b7 chega a b8. Nada muda no tabuleiro até você confirmar.</p>
+    <fieldset class="promo"><legend class="sr">Escolha a nova peça</legend>
+    ${[['Q','Dama'],['R','Torre'],['B','Bispo'],['N','Cavalo']].map((x,i)=>`<label><input type="radio" name="pr${n}" value="${x[1]}" ${i===0?'checked':''}><span class="pg" aria-hidden="true">${GL[x[0]]}&#xFE0E;</span><span class="pl">${x[1]}</span></label>`).join('')}
+    </fieldset><div class="acts">${btn('Cancelar',{k:'ghost',t:'Demonstração: o peão continuaria em b7, sem movimento gasto.'})}<button type="button" class="btn primary" data-promo>Confirmar</button></div></div></div>`},
+  note:['O seletor aparece antes da confirmação: o peão continua em b7 e b8 mostra “?” como destino escolhido.','Opções são botões de rádio nativos: setas trocam a peça, Tab chega em Confirmar.']},
+ {id:'s11',ref:'Item 11',g:'Fim',label:'Vitória',mode:'online',me:1,colors:B1,turn:1,fen:P_WIN,card:{t:'n',n:1},last:['e7','e1'],lock:true,
+  action:`<div class="count">${pips(1,1)}<p class="big">Partida encerrada</p></div>`,
+  lastText:'Jogador 1 · dama e7 → e1, captura do rei',log:['Jogador 2 comprou Reverse antes. As cores trocaram de dono.','Jogador 1 comprou a carta 1.','Jogador 1 (Pretas) capturou o rei branco em e1.'],
+  gameOv:()=>{const n=++uid;return `<div class="ov"><div class="dlg win" role="dialog" aria-modal="true" aria-labelledby="w${n}"><span class="ic">${I.crown}</span><h3 id="w${n}">Jogador 1 venceu!</h3>
+    <dl><dt>Motivo</dt><dd>Rei adversário capturado</dd><dt>Cor do vencedor</dt><dd>${chip('b')} <span class="muted">no momento da captura</span></dd><dt>Jogada final</dt><dd>Dama preta e7 → e1</dd></dl>
+    <div class="acts">${btn('Voltar ao início',{k:'primary',t:'A tela inicial fica fora desta entrega.'})}</div></div></div>`},
+  note:['O Jogador 1 começou com as Brancas, mas venceu controlando as Pretas: o resultado vale para a pessoa, não para a cor inicial.','Texto fala em “rei adversário capturado”; não há menção a xeque-mate.']},
+ {id:'e1',ref:'Item 12',g:'Falhas',label:'Ação inválida',mode:'online',me:1,colors:W1,turn:1,fen:P_E4,card:{t:'n',n:3},sel:'c1',invalid:'f4',last:['e2','e4'],
+  banner:{tone:'danger',icon:I.x,title:'Movimento inválido',text:'O bispo em c1 está bloqueado pelo peão em d2. Escolha outra peça.'},
+  action:card3(2),
+  lastText:'Jogador 1 · peão e2 → e4',log:['Jogador 1 comprou a carta 3.','Jogador 1 (Brancas) moveu peão e2 → e4.','Bispo c1 → f4 não é permitido.'],
+  note:['A tentativa recebe um ✕ na casa; a explicação diz o motivo e o que fazer.','O saldo não muda: continuam 2 movimentos.']},
+ {id:'e2',ref:'Item 12',g:'Falhas',label:'Aguardando confirmação',mode:'online',me:1,colors:W1,turn:1,fen:P_PEND,card:{t:'n',n:3},pending:{from:'g1',to:'f3'},last:['e2','e4'],conn:'sync',lock:true,
+  action:`<div class="count">${pips(3,1)}<p class="big">2 movimentos restantes</p></div><div class="waitbox"><span class="spin" aria-hidden="true"></span><div><p style="font-weight:700">Enviando cavalo g1 → f3…</p><p class="muted">Aguardando confirmação da sala. O tabuleiro volta a responder em seguida.</p></div></div>`,
+  lastText:'Jogador 1 · peão e2 → e4',log:['Jogador 1 comprou a carta 3.','Jogador 1 (Brancas) moveu peão e2 → e4.','Enviando cavalo g1 → f3…'],
+  note:['A peça aparece translúcida no destino, com contorno tracejado na origem e no destino.','O saldo só cai depois da confirmação. Sem animação, o texto “Enviando…” continua presente.']},
+ {id:'e3',ref:'Item 12',g:'Falhas',label:'Conexão interrompida',mode:'online',me:1,colors:W1,turn:1,fen:P_E4,card:{t:'n',n:3},last:['e2','e4'],conn:'lost',lock:true,stripSt:{2:'Sem sinal'},
+  action:card3(2),
+  lastText:'Jogador 1 · peão e2 → e4',log:['Jogador 1 (Brancas) moveu peão e2 → e4.','Conexão interrompida às 21:42.','Tentando reconectar…'],
+  boardOv:()=>`<div class="ov"><div class="dlg" role="alertdialog" aria-label="Conexão interrompida"><span class="ic bad">${I.wifiOff}</span><h3>Conexão interrompida</h3><p>A partida está pausada para os dois jogadores. Tentando reconectar (tentativa 2 de 5).</p><p class="muted">Ninguém vence por desconexão. A posição e o saldo da carta ficam guardados.</p><div class="acts">${btn('Tentar agora',{k:'primary',i:I.retry,t:'Demonstração: nova tentativa de conexão.'})}</div></div></div>`,
+  note:['A camada cobre só o tabuleiro: carta e saldo continuam legíveis.','O texto deixa claro que a desconexão não decide a partida.']},
+ {id:'e4',ref:'Item 12',g:'Falhas',label:'Divergência de sincronização',mode:'online',me:1,colors:W1,turn:1,fen:P_E4,card:{t:'n',n:3},last:['e2','e4'],
+  banner:{tone:'warn',icon:I.alert,title:'Posição atualizada',text:'Sua tela estava diferente da partida na sala. Mostramos a última posição confirmada: carta 3, 2 movimentos restantes.',acts:btn('Entendi',{k:'sm',t:'Aviso fechado.'})},
+  action:card3(2,`<p class="muted">Escolha uma peça branca para continuar.</p>`),
+  lastText:'Jogador 1 · peão e2 → e4',log:['Jogador 1 (Brancas) moveu peão e2 → e4.','Cavalo g1 → f3 não foi registrado.','Posição restaurada a partir da sala.'],
+  note:['A correção é explicada em linguagem simples e o jogo segue da posição confirmada.']},
+ {id:'e5',ref:'Item 12',g:'Falhas',label:'Sessão encerrada',mode:'online',me:1,colors:W1,turn:1,fen:P_E4,card:{t:'n',n:3},last:['e2','e4'],conn:'lost',lock:true,stripSt:{2:'Sem sinal'},
+  action:card3(2),
+  lastText:'Jogador 1 · peão e2 → e4',log:['Conexão interrompida às 21:42.','5 tentativas de reconexão sem sucesso.','Partida encerrada.'],
+  gameOv:()=>`<div class="ov"><div class="dlg" role="alertdialog" aria-label="Partida encerrada"><span class="ic bad">${I.x.replace('class="i"','')}</span><h3>Partida encerrada</h3><p>A conexão com a sala ${ROOM} falhou de vez e a partida não pode continuar.</p><p class="muted">Nenhum vencedor foi declarado.</p><div class="acts">${btn('Voltar ao início',{k:'primary',t:'A tela inicial fica fora desta entrega.'})}</div></div></div>`,
+  note:['Falha definitiva: encerra sem vencedor e oferece só a saída.']}
+];
+const byId=Object.fromEntries(S.map(s=>[s.id,s]));
+
+/* ---------- duas telas ---------- */
+const stage=document.getElementById('stage');
+const main=byId.s5;
+function frameHTML(s,w){return `<div class="scaler" data-w="${w}"><div class="frame" style="width:${w}px">${renderGame(s)}</div></div>`}
+function renderStage(){
+  stage.innerHTML=`<div class="device desk"><span class="cap">Computador</span><div class="screen">${frameHTML(main,1120)}</div></div><div class="device mob"><span class="cap">Celular</span><div class="screen">${frameHTML(main,390)}</div></div>`;
+  stage.querySelectorAll('.scaler').forEach(sc=>ro.observe(sc.firstElementChild));
+  layout();
+}
+function layout(){
+  const W=stage.clientWidth,gap=28,d=stage.querySelector('.device.desk'),m=stage.querySelector('.device.mob');
+  if(W>=900){const s=Math.min(1,(W-gap)/(1124+410));d.style.width=1124*s+'px';m.style.width=410*s+'px'}
+  else{d.style.width=W+'px';m.style.width=Math.min(W,410)+'px'}
+  stage.querySelectorAll('.scaler').forEach(fit);
+}
+function fit(sc){const w=+sc.dataset.w,s=Math.min(1,sc.parentElement.clientWidth/w),fr=sc.firstElementChild;fr.style.transform=`scale(${s})`;sc.style.height=fr.offsetHeight*s+'px';sc.style.width=w*s+'px'}
+const ro=new ResizeObserver(es=>es.forEach(e=>fit(e.target.parentElement)));
+new ResizeObserver(layout).observe(stage);
+function toast(game,msg){const t=game.querySelector('.toast');t.textContent=msg;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,4200)}
+stage.addEventListener('click',e=>{const game=e.target.closest('.game');if(!game)return;const t=e.target.closest('[data-toast],[data-go]');if(t)toast(game,t.dataset.toast||'Demonstração: cavalo g1 → f3.')});
+stage.addEventListener('keydown',e=>{
+  const sq=e.target.closest('.sq');if(!sq)return;
+  const d={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];if(!d)return;
+  e.preventDefault();
+  const r=Math.min(7,Math.max(0,+sq.dataset.r+d[0])),c=Math.min(7,Math.max(0,+sq.dataset.c+d[1]));
+  const n=sq.closest('.board').querySelector(`.sq[data-r="${r}"][data-c="${c}"]`);
+  sq.tabIndex=-1;n.tabIndex=0;n.focus();
+});
+renderStage();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layout);
+</script>
+<style>.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}</style>
+</body>
+</html>

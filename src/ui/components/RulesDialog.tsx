@@ -1,0 +1,61 @@
+import { Modal } from './primitives';
+import { symbols } from '../labels';
+import type { PieceType } from '../../core/chess/types';
+
+const pieces: { type: PieceType; name: string; text: string }[] = [
+  { type: 'pawn', name: 'Peão', text: 'Avança uma casa para a frente, se estiver vazia. Captura uma casa na diagonal para a frente. Não anda para trás. No primeiro movimento, a partir da fileira inicial, pode avançar duas casas se as duas estiverem livres.' },
+  { type: 'rook', name: 'Torre', text: 'Anda quantas casas quiser em linha reta, na horizontal ou na vertical. Não pode saltar sobre outras peças.' },
+  { type: 'bishop', name: 'Bispo', text: 'Anda quantas casas quiser na diagonal, sempre pelas casas da mesma tonalidade. Não pode saltar sobre outras peças.' },
+  { type: 'knight', name: 'Cavalo', text: 'Anda em L: duas casas em uma direção e uma para o lado. É a única peça que pode saltar sobre outras. A casa de chegada precisa estar vazia ou ocupada por uma peça adversária.' },
+  { type: 'queen', name: 'Dama', text: 'Combina torre e bispo: anda quantas casas quiser na horizontal, na vertical ou na diagonal. Não pode saltar sobre outras peças.' },
+  { type: 'king', name: 'Rei', text: 'Anda uma casa em qualquer direção. No Três, pode entrar em uma casa ameaçada, ficar ao lado do rei adversário e capturá-lo. Se seu rei for capturado, a partida termina.' },
+];
+
+export function RulesDialog({ onClose }: { onClose: () => void }) {
+  return <Modal title="Tudo para jogar Três." className="rules-modal" onClose={onClose}>
+    <p className="rules-intro">Do primeiro movimento à última carta. As regras de xadrez são a base; as diferenças do Três estão explicadas aqui.</p>
+    <div className="rules-content">
+      <section className="rules-essential"><p className="eyebrow">O MAIS IMPORTANTE</p><h3>Capture o rei. Cuide da sua cor.</h3><p>Vence a pessoa que capturar o rei da cor controlada pelo adversário naquele momento. Não existe xeque-mate. Seu rei pode ficar ameaçado, e você não é obrigado a defendê-lo.</p><p><strong>Uma peça só pode mover uma vez por carta.</strong> O símbolo ✓ no tabuleiro mostra as peças já utilizadas. Na próxima carta da sua cor, elas podem mover novamente.</p></section>
+      <details className="rules-section" open><summary>01 <span>Tabuleiro, cores e capturas</span></summary><div className="rules-section-body">
+        <p>São duas pessoas em um tabuleiro de 8 × 8 casas, com a posição inicial do xadrez. Cada cor começa com 8 peões, 2 torres, 2 cavalos, 2 bispos, 1 dama e 1 rei. As damas ficam em d1 e d8; os reis, em e1 e e8.</p>
+        <p>Jogador 1 começa controlando as <strong>brancas</strong>, e Jogador 2, as <strong>pretas</strong>. Jogador 1 joga primeiro. Depois, as pessoas alternam os turnos. A carta Reverse pode trocar as cores controladas, mas não troca a identidade dos jogadores.</p>
+        <p>Brancas avançam em direção à fileira 8; pretas, à fileira 1. Letras a–h e números 1–8 identificam as casas, mesmo quando o tabuleiro muda de orientação.</p>
+        <p><strong>Para jogar:</strong> clique ou toque na peça e depois no destino, ou arraste a peça e solte na casa desejada. Destinos válidos ficam destacados. Se soltar em uma casa inválida ou fora do tabuleiro, a peça retorna sem gastar movimento. Pelo teclado, use as setas para navegar e Enter para selecionar.</p>
+        <p>Para capturar, mova sua peça para uma casa ocupada por uma peça da outra cor. A peça capturada sai do tabuleiro. Você não pode capturar suas próprias peças, terminar sobre elas ou atravessar peças no caminho — com a exceção do salto do cavalo. O en passant tem uma forma especial de captura.</p>
+      </div></details>
+      <details className="rules-section" open><summary>02 <span>Como cada peça se move</span></summary><div className="rules-section-body piece-rules-grid">
+        {pieces.map(piece => <article className="piece-rule" key={piece.type}><span className="rules-piece" aria-hidden="true">{symbols[piece.type]}</span><div><h3>{piece.name}</h3><p>{piece.text}</p></div></article>)}
+      </div></details>
+      <details className="rules-section" open><summary>03 <span>Seu turno e todas as cartas</span></summary><div className="rules-section-body">
+        <p>Comece tocando em <strong>Comprar carta</strong>. A carta determina o que você pode fazer nesse turno. Quando o efeito termina, a vez passa para a outra pessoa, que compra uma nova carta.</p>
+        <div className="card-rules-list">
+          <article><span className="rule-card-symbol">1·2·3</span><div><h3>Cartas numéricas</h3><p>Permitem exatamente 1, 2 ou 3 movimentos, respectivamente, usando <strong>peças diferentes</strong>. Movimento simples, captura, roque, en passant ou movimento com promoção custam um movimento. Não é permitido pular movimentos disponíveis. Uma tentativa inválida não gasta movimento.</p></div></article>
+          <article><span className="rule-card-symbol">⊘</span><div><h3>Bloqueio</h3><p>Você não move nenhuma peça. O turno termina e passa para o outro jogador.</p></div></article>
+          <article><span className="rule-card-symbol">⇄</span><div><h3>Reverse</h3><p>Os jogadores trocam imediatamente as cores que controlam. Nenhuma peça muda de casa ou de cor. O turno termina sem movimento e passa para a outra pessoa.</p><p className="rules-example">Exemplo: P1/brancas compra Reverse. P1 passa a controlar pretas; P2 passa a controlar brancas e joga o próximo turno.</p></div></article>
+          <article><span className="rule-card-symbol">+2</span><div><h3>Até dois peões ou dois movimentos</h3><p>Escolha entre <strong>adicionar até dois peões</strong> e <strong>fazer dois movimentos com peças diferentes</strong>. Ao adicionar, use a cor que você controla agora. Brancas: casas vazias de <strong>a2 a h2</strong>. Pretas: casas vazias de <strong>a7 a h7</strong>. Você pode ignorar a carta ou encerrar depois de colocar um peão.</p><p>Se só uma casa estiver livre, pode adicionar apenas um. Sem espaço, você ainda pode escolher os dois movimentos. Os novos peões são normais: podem avançar duas casas no primeiro movimento, capturar, participar de en passant e promover.</p></div></article>
+          <article><span className="rule-card-symbol">+4</span><div><h3>Uma dama ou quatro movimentos</h3><p>Escolha entre <strong>adicionar uma dama</strong> e <strong>fazer quatro movimentos com peças diferentes</strong>. A dama tem sua cor atual. Brancas: casas vazias de <strong>a1 a h1</strong>. Pretas: casas vazias de <strong>a8 a h8</strong>. Sem espaço, a opção de mover continua disponível. Você também pode ignorar a carta antes de escolher.</p><p>Podem existir várias damas da mesma cor. A nova dama se move e captura como qualquer outra.</p></div></article>
+        </div>
+        <p className="rules-callout"><strong>A escolha é exclusiva e vale para toda a carta.</strong> Não é possível adicionar e mover, nem mudar de opção depois de escolher. A opção de mover permite capturas, roque e promoção: são dois movimentos no +2 e quatro no +4, sempre sem repetir peças. O +4 é a exceção ao limite de três das cartas numéricas. O turno termina ao usar o saldo, capturar o rei ou ficar sem movimentos elegíveis. Depois de escolher mover, não é permitido passar a vez. A oportunidade de en passant continua expirando na compra de +2/+4, mesmo se você escolher mover.</p>
+        <p>Nenhuma adição substitui uma peça existente. Peças adicionadas conservam sua cor após Reverse e passam a ser controladas por quem estiver com essa cor. Sem espaço para adicionar e sem movimentos possíveis, a vez passa automaticamente.</p>
+        <p className="rules-example">Exemplo: você começou com brancas, mas agora controla pretas. Um +4 adiciona uma dama preta na fileira 8. Depois de outro Reverse, essa dama continua preta e passa a ser controlada pela outra pessoa.</p>
+      </div></details>
+      <details className="rules-section" open><summary>04 <span>Roque, en passant e promoção</span></summary><div className="rules-section-body special-rules">
+        <article><h3>Roque · rei e torre juntos</h3><p>O rei e a torre originais precisam estar nas casas iniciais, nunca ter se movido e ter todas as casas entre eles vazias. No roque pequeno, o rei vai de e1 para g1 e a torre de h1 para f1; no grande, rei e1 → c1 e torre a1 → d1. Para pretas, use as mesmas letras na fileira 8.</p><p>O roque custa <strong>um movimento</strong>, mas utiliza <strong>rei e torre</strong>: nenhum dos dois pode mover novamente na mesma carta. No Três, o rei pode rocar mesmo ameaçado, passando por casas ameaçadas ou terminando nelas.</p><p>Voltar à casa inicial não recupera o direito de rocar. Uma torre promovida não substitui a original. Reverse conserva os direitos de roque das peças.</p></article>
+        <article><h3>En passant · captura de passagem</h3><p>Se um peão adversário avança duas casas de uma vez e termina ao lado do seu peão, seu peão pode capturá-lo na diagonal, ocupando a casa que ele atravessou. O peão adversário é retirado da casa onde terminou.</p><p>No Três, a oportunidade vale <strong>somente no próximo movimento de xadrez</strong>. Se qualquer outra peça mover, inclusive uma peça do jogador que fez o avanço duplo na mesma carta, ela expira. Comprar Bloqueio, Reverse, +2 ou +4 também encerra a oportunidade. Comprar uma carta numérica não a encerra.</p><p>O peão que captura precisa estar elegível: não pode ter sido utilizado na carta. Encerrar um turno por ausência de movimentos também elimina a oportunidade; tentativas inválidas não a eliminam.</p><p className="rules-example">Exemplo: um peão branco vai de e2 para e4 como último movimento. Um peão preto em d4 pode capturá-lo indo para e3 no primeiro movimento seguinte, se a próxima carta for numérica.</p></article>
+        <article><h3>Promoção · um novo papel</h3><p>Ao chegar à última fileira — 8 para brancas, 1 para pretas — o peão deve virar <strong>dama, torre, bispo ou cavalo</strong>. Escolha antes de confirmar o movimento. Pode haver promoção com captura.</p><p>O movimento e a promoção custam uma única unidade. É a mesma peça: ela já foi utilizada e <strong>não pode mover novamente na mesma carta</strong>. Cancelar o seletor mantém o peão na casa anterior e não gasta movimento.</p></article>
+      </div></details>
+      <details className="rules-section"><summary>05 <span>Fim da partida e situações especiais</span></summary><div className="rules-section-body">
+        <p><strong>A captura do rei encerra a partida imediatamente</strong>, mesmo se ainda restarem movimentos na carta. Vence quem fez a captura, independentemente da cor que tinha no início.</p>
+        <p>Não há xeque-mate, afogamento, empate por repetição, regra dos 50 movimentos ou outros empates tradicionais. Um aviso de rei ameaçado é apenas informativo.</p>
+        <p>Se não existir nenhuma peça ainda elegível com movimento possível, o turno termina automaticamente. Os movimentos restantes são dispensados com um aviso. Isso não é empate e não permite pular movimentos que sejam possíveis.</p>
+        <p>Ao resolver uma carta, ela vai para o descarte. Quando o monte acaba, o descarte é embaralhado e utilizado novamente. Os efeitos não acumulam de um turno para o outro.</p>
+        <p>No modo local, passem o dispositivo ao fim do turno. O tabuleiro acompanha a cor do jogador atual. Não há salvamento ou histórico: fechar, atualizar ou sair perde a partida.</p>
+        <p>No modo online, compartilhe o convite com uma pessoa. Cada navegador controla seu jogador e o tabuleiro acompanha a cor dele, inclusive após Reverse. Aguarde a confirmação de uma ação antes da próxima. Uma interrupção de rede pausa a partida; se a conexão não se recuperar, iniciem outra. Desconectar não declara vitória.</p>
+      </div></details>
+      <details className="rules-section"><summary>06 <span>O baralho desta versão</span></summary><div className="rules-section-body">
+        <p>São <strong>35 cartas</strong>: 12 cartas 1, 8 cartas 2, 4 cartas 3, 3 Bloqueios, 3 Reverse, 3 cartas +2 e 2 cartas +4. A distribuição inicial é experimental e poderá ser ajustada em versões futuras.</p>
+      </div></details>
+    </div>
+    <div className="rules-footer"><button className="button primary full" onClick={onClose}>Entendi, vamos jogar</button></div>
+  </Modal>;
+}
